@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Resource System - PT Murinda Sentra Baja</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-main: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --accent-tosca: #0d9488;
+            --accent-tosca-glow: rgba(13, 148, 136, 0.2);
+            --accent-orange: #ea580c;
+            --accent-green: #16a34a;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: all 0.2s ease; }
+
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding: 16px; overflow-x: hidden; position: relative; }
+
+        /* Background Effects */
+        .ambient-blob { position: fixed; border-radius: 50%; filter: blur(80px); z-index: -1; animation: float 15s infinite alternate; opacity: 0.4; }
+        .blob-1 { top: -10%; left: -5%; width: 40vw; height: 40vw; background: rgba(20, 184, 166, 0.4); }
+        .blob-2 { bottom: -10%; right: -5%; width: 45vw; height: 45vw; background: rgba(249, 115, 22, 0.3); animation-delay: -5s; }
+
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(20px, 20px) scale(1.02); } }
+
+        .container { max-width: 1440px; margin: 0 auto; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
+
+        /* Panel Styling */
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); padding: 16px; }
+        .glass-panel:hover { box-shadow: 0 6px 24px var(--accent-tosca-glow); border-color: rgba(20, 184, 166, 0.2); }
+
+        /* Top Bar */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; }
+        .title-section h1 { font-size: 1.4rem; font-weight: 700; background: linear-gradient(to right, var(--accent-tosca), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; }
+        .title-section p { color: var(--text-muted); font-size: 0.8rem; font-weight: 500; }
+        
+        .controls-section { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .datetime-display { font-family: monospace; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-right: 8px; background: rgba(255,255,255,0.6); padding: 6px 12px; border-radius: 16px; border: 1px solid var(--glass-border); }
+        .btn { background: #fff; color: var(--text-main); border: 1px solid rgba(20, 184, 166, 0.3); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .btn:hover { background: var(--accent-tosca); color: #fff; transform: translateY(-1px); }
+        .btn-print:hover { background: var(--accent-orange); border-color: var(--accent-orange); }
+
+        /* Summary Grid */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .card { display: flex; align-items: center; gap: 14px; padding: 12px 16px; }
+        .card-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(255,255,255,0.8); }
+        .card-info h3 { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+        .card-info p { font-size: 1.4rem; font-weight: 800; color: var(--text-main); }
+
+        /* Filter Panel */
+        .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 8px; }
+        .input-group { display: flex; flex-direction: column; gap: 4px; }
+        .input-group label { font-size: 0.75rem; color: var(--accent-tosca); font-weight: 700; text-transform: uppercase; }
+        .custom-select, .custom-input { width: 100%; background: rgba(255,255,255,0.9); border: 1px solid rgba(20, 184, 166, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; outline: none; }
+        .custom-select:focus, .custom-input:focus { border-color: var(--accent-orange); }
+        .search-box { position: relative; }
+        .search-box i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; }
+
+        /* Visualizations Section */
+        .viz-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+        .viz-header { font-size: 0.95rem; margin-bottom: 10px; color: var(--text-main); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .chart-container { height: 160px; width: 100%; position: relative; }
+
+        /* Matrix Table Styling - More Compact */
+        .matrix-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; background: #fff; border-radius: 6px; overflow: hidden; }
+        .matrix-table th, .matrix-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .matrix-table th { background: #f1f5f9; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .row-sp3 { background-color: #fff5f5; color: #b91c1c; font-weight: 600; }
+        .row-sp2 { background-color: #fff9db; color: #c2410c; font-weight: 600; }
+        .row-sp1 { background-color: #fffbeb; color: #854d0e; font-weight: 600; }
+        .row-teguran { background-color: #e8f4fd; color: #0369a1; font-weight: 600; }
+
+        /* Main Data Table */
+        .table-container { overflow-x: auto; max-height: 400px; scrollbar-width: thin; scrollbar-color: var(--accent-tosca) transparent; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); white-space: nowrap; font-size: 0.8rem; vertical-align: middle;}
+        th { background: rgba(255,255,255,0.9); position: sticky; top: 0; z-index: 10; color: var(--text-main); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid rgba(20, 184, 166, 0.2); }
+        tbody tr:hover { background: rgba(255, 255, 255, 0.95); }
+
+        /* Micro-elements for Table */
+        .profile-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--accent-tosca); padding: 1px; background: #fff; }
+        .profile-placeholder { width: 40px; height: 40px; border-radius: 6px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 700; font-size: 1rem; border: 1px dashed #cbd5e1; flex-shrink: 0; }
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge-active { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-inactive { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .table-footer { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .footer-license { text-align: center; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); }
+        .footer-license span { color: var(--accent-tosca); font-weight: 700; }
+
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--accent-tosca); font-weight: 600; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(13, 148, 136, 0.2); border-top: 3px solid var(--accent-tosca); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Print Settings */
+        @media print {
+            body { background: #ffffff !important; padding: 0; margin: 0; }
+            .ambient-blob, .controls-section, .filter-panel, .chart-container, #loader { display: none !important; }
+            .glass-panel { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 15px; }
+            .viz-section { display: block; margin-bottom: 0; }
+            .table-container { max-height: none !important; overflow: visible !important; border: none; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #cbd5e1 !important; padding: 8px !important; font-size: 9pt; white-space: normal; word-break: break-word; }
+            th { background-color: #f1f5f9 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge { border: none !important; padding: 0 !important; background: transparent !important; color: #000 !important; }
+            @page { margin: 15mm; size: landscape; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>Mengambil data MSB ERP System...</p>
+    </div>
+
+    <div class="container">
+        <div class="glass-panel top-bar">
+            <div class="title-section">
+                <h1>Human Resource System</h1>
+                <p>PT Murinda Sentra Baja - Kalijati Plant</p>
+            </div>
+            <div class="controls-section">
+                <div class="datetime-display" id="datetime"></div>
+                <button class="btn" onclick="refreshData()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                <button class="btn" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export</button>
+                <button class="btn btn-print" onclick="printReport()"><i class="fa-solid fa-print"></i> Print</button>
+            </div>
+        </div>
+
+        <div class="summary-grid">
+            <div class="glass-panel card">
+                <div class="card-icon" style="color: var(--accent-tosca);"><i class="fa-solid fa-users"></i></div>
+                <div class="card-info"><h3>Total Karyawan</h3><p id="card-total">0</p></div>
+            </div>
+            <div class="glass-panel card">
+                <div class="card-icon" style="color: var(--success);"><i class="fa-solid fa-user-check"></i></div>
+                <div class="card-info"><h3>Status Aktif</h3><p id="card-active">0</p></div>
+            </div>
+            <div class="glass-panel card">
+                <div class="card-icon" style="color: var(--accent-orange);"><i class="fa-solid fa-building"></i></div>
+                <div class="card-info"><h3>Departemen</h3><p id="card-dept">0</p></div>
+            </div>
+            <div class="glass-panel card">
+                <div class="card-icon" style="color: #8b5cf6;"><i class="fa-solid fa-briefcase"></i></div>
+                <div class="card-info"><h3>Posisi / Jabatan</h3><p id="card-pos">0</p></div>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="viz-header"><i class="fa-solid fa-filter" style="color: var(--accent-tosca);"></i> Filter Data</div>
+            <div class="filter-row">
+                <div class="input-group">
+                    <label>Departemen</label>
+                    <select class="custom-select" id="filter-dept" onchange="updateJabatanOptions(); applyFilters();"><option value="All">Semua</option></select>
+                </div>
+                <div class="input-group">
+                    <label>Jabatan</label>
+                    <select class="custom-select" id="filter-jabatan" onchange="applyFilters()"><option value="All">Semua</option></select>
+                </div>
+                <div class="input-group">
+                    <label>Status Kerja</label>
+                    <select class="custom-select" id="filter-status" onchange="applyFilters()"><option value="All">Semua</option></select>
+                </div>
+                <div class="input-group">
+                    <label>Pencarian</label>
+                    <div class="search-box">
+                        <input type="text" class="custom-input" id="search-input" placeholder="Cari nama, ID..." onkeyup="applyFilters()">
+                        <i class="fa-solid fa-search"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viz-section">
+            <div class="glass-panel">
+                <div class="viz-header"><i class="fa-solid fa-chart-pie" style="color: var(--accent-orange);"></i> Sebaran Departemen</div>
+                <div class="chart-container"><canvas id="deptChart"></canvas></div>
+            </div>
+            <div class="glass-panel">
+                <div class="viz-header"><i class="fa-solid fa-chart-line" style="color: var(--accent-tosca);"></i> Trend Rata-rata Point Disiplin</div>
+                <div class="chart-container"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="glass-panel" style="overflow-x: auto;">
+                <div class="viz-header"><i class="fa-solid fa-gavel" style="color: var(--danger);"></i> Matrix Sanksi</div>
+                <table class="matrix-table">
+                    <thead><tr><th>Akumulasi Point</th><th>Tingkat Sanksi</th></tr></thead>
+                    <tbody>
+                        <tr class="row-sp3"><td>&gt;= 150</td><td>Surat Peringatan 3 (SP 3)</td></tr>
+                        <tr class="row-sp2"><td>&gt;= 100</td><td>Surat Peringatan 2 (SP 2)</td></tr>
+                        <tr class="row-sp1"><td>&gt;= 50</td><td>Surat Peringatan 1 (SP 1)</td></tr>
+                        <tr class="row-teguran"><td>&gt;= 30</td><td>Teguran Tertulis</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="glass-panel">
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead><tr id="table-header"></tr></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <div class="table-footer">
+                <div>Menampilkan <strong id="filtered-count" style="color: var(--accent-tosca); font-size:1.1rem;">0</strong> baris dari total <strong id="total-count">0</strong> data</div>
+                <div>Employee Management System</div>
+            </div>
+        </div>
+
+        <div class="footer-license">
+            Licensed to <span>PT Murinda Sentra Baja</span> | Developed by <span>Aspuro Amarulloh Khoiri</span>
+        </div>
+    </div>
+
+    <script>
+        // URL ASLI ANDA DIKEMBALIKAN DI SINI
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzoOz3tAzQO2K0KJvgtXzJIt279jePIj2FDNZHhVRXEh7L8mMZrsPsZex4fkQ0y4Wdx6A/exec"; 
+        
+        let globalData = [];
+        let filteredData = [];
+        // SELURUH KOLOM DIKEMBALIKAN
+        let columns = ["ID Karyawan", "Foto Profil", "Nama Lengkap", "Jabatan", "Departemen", "Status Kerja", "Tanggal Masuk", "Whatsapp", "Email", "No. BPJS KES", "No. BPJS TK", "Status BPJS TK", "Jumlah Izin", "Point Disiplin", "Skor Kinerja", "Catatan Evaluasi", "Penilai"];
+        
+        let deptChartInstance = null;
+        let trendChartInstance = null;
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('datetime').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' });
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        function printReport() {
+            const originalTitle = document.title;
+            const today = new Date().toISOString().slice(0, 10);
+            document.title = `Laporan_HR_Summary_PT_Murinda_Sentra_Baja_${today}`;
+            window.print();
+            document.title = originalTitle;
+        }
+
+        // FUNGSI FETCH ASLI DIKEMBALIKAN
+        async function fetchData() {
+            if (WEB_APP_URL.includes("MASUKAN_URL")) { generateMockData(); return; }
+            showLoader(true);
+            try {
+                const response = await fetch(WEB_APP_URL);
+                const result = await response.json();
+                if(result.data && result.data.length > 0) {
+                    globalData = result.data;
+                    initializeDashboard();
+                } else { alert("Data kosong di sheet summary."); }
+            } catch (error) {
+                console.error("Gagal:", error);
+                generateMockData(); 
+            } finally { showLoader(false); }
+        }
+
+        function generateMockData() {
+            globalData = [];
+            for(let i=1; i<=3; i++) {
+                globalData.push({
+                    "ID Karyawan": "260503" + i,
+                    "Foto Profil": i === 1 ? "Karyawan_Images/2605031.Foto Profil.073318.jpg" : (i === 3 ? "Karyawan_Images/2605033.Foto Profil.021709.jpg" : ""),
+                    "Nama Lengkap": i === 1 ? "Aspuro Amarulloh Khoiri" : (i === 2 ? "Yusuf Mansur" : "Dede Yusuf"),
+                    "Jabatan": i === 1 ? "CEO" : (i === 2 ? "Operator" : "Helper"),
+                    "Departemen": i === 1 ? "Engineering" : "Produksi",
+                    "Status Kerja": "aktif Kerja Waktu",
+                    "Point Disiplin": i === 1 ? 0 : (i === 2 ? 45 : 120)
+                });
+            }
+            initializeDashboard();
+        }
+
+        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+        function refreshData() { fetchData(); }
+
+        function initializeDashboard() {
+            filteredData = [...globalData];
+            renderTableHeaders(); populateFilterOptions(); applyFilters(); 
+        }
+
+        function renderTableHeaders() {
+            const tr = document.getElementById('table-header');
+            tr.innerHTML = columns.map(col => `<th>${col}</th>`).join("");
+        }
+
+        function populateFilterOptions() {
+            const depts = [...new Set(globalData.map(d => d["Departemen"]))].filter(Boolean).sort();
+            const stats = [...new Set(globalData.map(d => d["Status Kerja"]))].filter(Boolean).sort();
+
+            const deptSelect = document.getElementById('filter-dept');
+            deptSelect.innerHTML = '<option value="All">Semua</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            const statSelect = document.getElementById('filter-status');
+            statSelect.innerHTML = '<option value="All">Semua</option>' + stats.map(s => `<option value="${s}">${s}</option>`).join('');
+
+            updateJabatanOptions();
+        }
+
+        function updateJabatanOptions() {
+            const selectedDept = document.getElementById('filter-dept').value;
+            let targetData = selectedDept !== "All" ? globalData.filter(d => d["Departemen"] == selectedDept) : globalData;
+            const jabs = [...new Set(targetData.map(d => d["Jabatan"]))].filter(Boolean).sort();
+            
+            document.getElementById('filter-jabatan').innerHTML = '<option value="All">Semua</option>' + jabs.map(j => `<option value="${j}">${j}</option>`).join('');
+        }
+
+        function applyFilters() {
+            const deptVal = document.getElementById('filter-dept').value;
+            const jabVal = document.getElementById('filter-jabatan').value;
+            const statVal = document.getElementById('filter-status').value;
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+
+            filteredData = globalData.filter(row => {
+                return (deptVal === "All" || row["Departemen"] == deptVal) &&
+                       (jabVal === "All" || row["Jabatan"] == jabVal) &&
+                       (statVal === "All" || row["Status Kerja"] == statVal) &&
+                       (searchVal === "" || Object.values(row).some(v => String(v).toLowerCase().includes(searchVal)));
+            });
+            renderTable(); updateSummaryCards(); updateCharts();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = "";
+            filteredData.forEach(row => {
+                const tr = document.createElement('tr');
+                columns.forEach(col => {
+                    const td = document.createElement('td');
+                    let val = row[col] || "";
+                    
+                    // LOGIK FOTO PROFIL DIKEMBALIKAN
+                    if (col.toLowerCase().includes("foto")) {
+                        if (val && val !== "") {
+                            td.innerHTML = `<img src="${val}" alt="Foto" class="profile-img" 
+                                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff';">`;
+                        } else {
+                            let inisial = row['Nama Lengkap'] ? row['Nama Lengkap'].charAt(0) : '-';
+                            td.innerHTML = `<div class="profile-placeholder">${inisial}</div>`;
+                        }
+                    } 
+                    // LOGIK BADGE STATUS KERJA DIKEMBALIKAN
+                    else if ((col === "Status Kerja" || col === "Status BPJS TK" || col === "Catatan Evaluasi") && val) {
+                        const vLower = String(val).toLowerCase();
+                        let badgeClass = "badge badge-active";
+                        if(vLower.includes("tidak") || vLower.includes("cuti") || vLower.includes("resign")) { badgeClass = "badge badge-inactive"; }
+                        td.innerHTML = `<span class="${badgeClass}">${val}</span>`;
+                    } else { 
+                        td.textContent = val; 
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            document.getElementById('filtered-count').textContent = filteredData.length;
+            document.getElementById('total-count').textContent = globalData.length;
+        }
+
+        function updateSummaryCards() {
+            document.getElementById('card-total').textContent = filteredData.length;
+            document.getElementById('card-active').textContent = filteredData.filter(r => !String(r["Status Kerja"]||"").toLowerCase().includes("cuti")).length;
+            document.getElementById('card-dept').textContent = new Set(filteredData.map(r => r["Departemen"]).filter(Boolean)).size;
+            document.getElementById('card-pos').textContent = new Set(filteredData.map(r => r["Jabatan"]).filter(Boolean)).size;
+        }
+
+        function updateCharts() {
+            const deptCounts = {};
+            const deptDisiplin = {};
+            filteredData.forEach(r => { 
+                let d = r["Departemen"]; 
+                let pts = parseFloat(r["Point Disiplin"]) || 0;
+                if(d) {
+                    deptCounts[d] = (deptCounts[d] || 0) + 1; 
+                    deptDisiplin[d] = (deptDisiplin[d] || 0) + pts;
+                }
+            });
+
+            const ctx1 = document.getElementById('deptChart').getContext('2d');
+            if(deptChartInstance) deptChartInstance.destroy();
+            deptChartInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: { labels: Object.keys(deptCounts), datasets: [{ data: Object.values(deptCounts), backgroundColor: 'rgba(234, 88, 12, 0.8)', borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: {size: 10} } } } }
+            });
+
+            const labels = Object.keys(deptDisiplin);
+            const dataAvg = labels.map(l => (deptDisiplin[l] / deptCounts[l]).toFixed(1));
+            const ctx2 = document.getElementById('trendChart').getContext('2d');
+            if(trendChartInstance) trendChartInstance.destroy();
+            trendChartInstance = new Chart(ctx2, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ label: 'Avg Point Disiplin', data: dataAvg, borderColor: '#0d9488', backgroundColor: 'rgba(13, 148, 136, 0.1)', fill: true, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: {size: 10} } } } }
+            });
+        }
+
+        function exportToExcel() {
+            if(filteredData.length === 0) return alert("Tidak ada data.");
+            const ws = XLSX.utils.json_to_sheet(filteredData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Archive");
+            XLSX.writeFile(wb, "HR_Summary_Archive.xlsx");
+        }
+
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
