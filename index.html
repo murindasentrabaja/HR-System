@@ -89,8 +89,74 @@
         th { background: rgba(255,255,255,0.9); position: sticky; top: 0; z-index: 10; color: var(--text-main); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid rgba(20, 184, 166, 0.2); }
         tbody tr:hover { background: rgba(255, 255, 255, 0.95); }
 
-        /* Micro-elements for Table */
-        .profile-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--accent-tosca); padding: 1px; background: #fff; }
+        /* Micro-elements for Table & Modified Photo Styling */
+        .profile-img { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 6px; 
+            object-fit: cover; 
+            border: 1px solid var(--accent-tosca); 
+            padding: 1px; 
+            background: #fff; 
+            cursor: pointer; 
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+        }
+        /* Zoom & Bubble glow effect on hover */
+        .profile-img:hover { 
+            transform: scale(1.5); 
+            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.4); 
+            z-index: 99; 
+        }
+
+        /* Photo Lightbox Modal Styling */
+        .photo-modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(15, 23, 42, 0.8); 
+            z-index: 10000; 
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+        }
+        .photo-modal.show { 
+            display: flex; 
+            opacity: 1; 
+        }
+        .photo-modal-content { 
+            max-width: 90%; 
+            max-height: 80vh; 
+            border-radius: 12px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+            border: 4px solid #fff; 
+            transform: scale(0.7); 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .photo-modal.show .photo-modal-content { 
+            transform: scale(1); 
+        }
+        .photo-modal-close { 
+            position: absolute; 
+            top: 25px; 
+            right: 35px; 
+            color: #fff; 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: color 0.2s; 
+        }
+        .photo-modal-close:hover { 
+            color: var(--danger); 
+        }
+
         .profile-placeholder { width: 40px; height: 40px; border-radius: 6px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 700; font-size: 1rem; border: 1px dashed #cbd5e1; flex-shrink: 0; }
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .badge-active { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
@@ -107,7 +173,7 @@
         /* Print Settings */
         @media print {
             body { background: #ffffff !important; padding: 0; margin: 0; }
-            .ambient-blob, .controls-section, .filter-panel, .chart-container, #loader { display: none !important; }
+            .ambient-blob, .controls-section, .filter-panel, .chart-container, #loader, .photo-modal { display: none !important; }
             .glass-panel { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 15px; }
             .viz-section { display: block; margin-bottom: 0; }
             .table-container { max-height: none !important; overflow: visible !important; border: none; }
@@ -115,6 +181,7 @@
             th, td { border: 1px solid #cbd5e1 !important; padding: 8px !important; font-size: 9pt; white-space: normal; word-break: break-word; }
             th { background-color: #f1f5f9 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .badge { border: none !important; padding: 0 !important; background: transparent !important; color: #000 !important; }
+            .profile-img:hover { transform: none !important; box-shadow: none !important; }
             @page { margin: 15mm; size: landscape; }
         }
     </style>
@@ -132,7 +199,7 @@
         <div class="glass-panel top-bar">
             <div class="title-section">
                 <h1>Human Resource System</h1>
-                <p>PT Murinda Sentra Baja - Kalijati, Subang</p>
+                <p>PT Murinda Sentra Baja - Kalijati Plant</p>
             </div>
             <div class="controls-section">
                 <div class="datetime-display" id="datetime"></div>
@@ -227,13 +294,16 @@
         </div>
     </div>
 
+    <div id="photoModal" class="photo-modal" onclick="closeModal()">
+        <span class="photo-modal-close" onclick="closeModal()">&times;</span>
+        <img id="modalImg" class="photo-modal-content" src="" alt="Pratinjau Foto" onclick="event.stopPropagation()">
+    </div>
+
     <script>
-        // URL ASLI ANDA DIKEMBALIKAN DI SINI
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzoOz3tAzQO2K0KJvgtXzJIt279jePIj2FDNZHhVRXEh7L8mMZrsPsZex4fkQ0y4Wdx6A/exec"; 
         
         let globalData = [];
         let filteredData = [];
-        // SELURUH KOLOM DIKEMBALIKAN
         let columns = ["ID Karyawan", "Foto Profil", "Nama Lengkap", "Jabatan", "Departemen", "Status Kerja", "Tanggal Masuk", "Whatsapp", "Email", "No. BPJS KES", "No. BPJS TK", "Status BPJS TK", "Jumlah Izin", "Point Disiplin", "Skor Kinerja", "Catatan Evaluasi", "Penilai"];
         
         let deptChartInstance = null;
@@ -253,7 +323,6 @@
             document.title = originalTitle;
         }
 
-        // FUNGSI FETCH ASLI DIKEMBALIKAN
         async function fetchData() {
             if (WEB_APP_URL.includes("MASUKAN_URL")) { generateMockData(); return; }
             showLoader(true);
@@ -344,17 +413,19 @@
                     const td = document.createElement('td');
                     let val = row[col] || "";
                     
-                    // LOGIK FOTO PROFIL DIKEMBALIKAN
                     if (col.toLowerCase().includes("foto")) {
                         if (val && val !== "") {
+                            // Menambahkan trigger 'openModal' saat gambar diklik
                             td.innerHTML = `<img src="${val}" alt="Foto" class="profile-img" 
+                                            onclick="openModal(this.src)"
                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff';">`;
                         } else {
                             let inisial = row['Nama Lengkap'] ? row['Nama Lengkap'].charAt(0) : '-';
-                            td.innerHTML = `<div class="profile-placeholder">${inisial}</div>`;
+                            // Placeholder inisial juga diberi trigger klik agar adil jika avatarnya ter-generate otomatis
+                            let avatarFallbackUrl = `https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff&size=512`;
+                            td.innerHTML = `<div class="profile-placeholder" style="cursor:pointer;" onclick="openModal('${avatarFallbackUrl}')">${inisial}</div>`;
                         }
                     } 
-                    // LOGIK BADGE STATUS KERJA DIKEMBALIKAN
                     else if ((col === "Status Kerja" || col === "Status BPJS TK" || col === "Catatan Evaluasi") && val) {
                         const vLower = String(val).toLowerCase();
                         let badgeClass = "badge badge-active";
@@ -415,6 +486,23 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Archive");
             XLSX.writeFile(wb, "HR_Summary_Archive.xlsx");
+        }
+
+        /* Functions for Lightbox Preview Box */
+        function openModal(src) {
+            const modal = document.getElementById('photoModal');
+            const modalImg = document.getElementById('modalImg');
+            modalImg.src = src;
+            modal.style.display = 'flex';
+            // Timeout kecil untuk memicu transisi opacity & CSS scale smooth
+            setTimeout(() => modal.classList.add('show'), 15);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('show');
+            // Menunggu animasi transisi selesai (300ms) sebelum mengubah display ke none
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
         }
 
         window.onload = fetchData;
