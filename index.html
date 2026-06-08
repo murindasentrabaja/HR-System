@@ -73,7 +73,7 @@
         .viz-header { font-size: 0.95rem; margin-bottom: 10px; color: var(--text-main); font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .chart-container { height: 160px; width: 100%; position: relative; }
 
-        /* Matrix Table Styling - More Compact */
+        /* Matrix Table Styling */
         .matrix-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; background: #fff; border-radius: 6px; overflow: hidden; }
         .matrix-table th, .matrix-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid rgba(0,0,0,0.04); }
         .matrix-table th { background: #f1f5f9; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
@@ -89,75 +89,10 @@
         th { background: rgba(255,255,255,0.9); position: sticky; top: 0; z-index: 10; color: var(--text-main); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid rgba(20, 184, 166, 0.2); }
         tbody tr:hover { background: rgba(255, 255, 255, 0.95); }
 
-        /* Micro-elements for Table & Modified Photo Styling */
-        .profile-img { 
-            width: 40px; 
-            height: 40px; 
-            border-radius: 6px; 
-            object-fit: cover; 
-            border: 1px solid var(--accent-tosca); 
-            padding: 1px; 
-            background: #fff; 
-            cursor: pointer; 
-            position: relative;
-            z-index: 1;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
-        }
-        /* Zoom & Bubble glow effect on hover */
-        .profile-img:hover { 
-            transform: scale(1.5); 
-            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.4); 
-            z-index: 99; 
-        }
-
-        /* Photo Lightbox Modal Styling */
-        .photo-modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(15, 23, 42, 0.8); 
-            z-index: 10000; 
-            justify-content: center; 
-            align-items: center; 
-            backdrop-filter: blur(8px); 
-            -webkit-backdrop-filter: blur(8px);
-            opacity: 0; 
-            transition: opacity 0.3s ease; 
-        }
-        .photo-modal.show { 
-            display: flex; 
-            opacity: 1; 
-        }
-        .photo-modal-content { 
-            max-width: 90%; 
-            max-height: 80vh; 
-            border-radius: 12px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
-            border: 4px solid #fff; 
-            transform: scale(0.7); 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        .photo-modal.show .photo-modal-content { 
-            transform: scale(1); 
-        }
-        .photo-modal-close { 
-            position: absolute; 
-            top: 25px; 
-            right: 35px; 
-            color: #fff; 
-            font-size: 2.5rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: color 0.2s; 
-        }
-        .photo-modal-close:hover { 
-            color: var(--danger); 
-        }
-
+        .profile-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--accent-tosca); padding: 1px; background: #fff; cursor: pointer; position: relative; z-index: 1; transition: transform 0.3s, box-shadow 0.3s; }
+        .profile-img:hover { transform: scale(1.5); box-shadow: 0 10px 20px rgba(13, 148, 136, 0.4); z-index: 99; }
         .profile-placeholder { width: 40px; height: 40px; border-radius: 6px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 700; font-size: 1rem; border: 1px dashed #cbd5e1; flex-shrink: 0; }
+        
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .badge-active { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
         .badge-inactive { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
@@ -170,6 +105,57 @@
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(13, 148, 136, 0.2); border-top: 3px solid var(--accent-tosca); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* Modal Default (Photo Preview) */
+        .photo-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s ease; }
+        .photo-modal.show { display: flex; opacity: 1; }
+        .photo-modal-content { max-width: 90%; max-height: 80vh; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 4px solid #fff; transform: scale(0.7); transition: transform 0.3s; }
+        .photo-modal.show .photo-modal-content { transform: scale(1); }
+        .photo-modal-close { position: absolute; top: 25px; right: 35px; color: #fff; font-size: 2.5rem; font-weight: bold; cursor: pointer; transition: color 0.2s; z-index: 10001;}
+        .photo-modal-close:hover { color: var(--danger); }
+
+        /* Styles khusus Karyawan Card */
+        .kc-modal-wrapper { width: 100%; max-width: 480px; background: #f4f6f8; border-radius: 20px; padding: 20px; max-height: 90vh; overflow-y: auto; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;}
+        .photo-modal.show .kc-modal-wrapper { transform: scale(1); }
+        
+        .kc-profile-card { background: linear-gradient(-45deg, #4285f4, #9b72cb, #d96570, #4285f4); background-size: 300% 300%; animation: gradientMove 8s ease infinite; border-radius: 20px; padding: 30px 24px; color: white; text-align: center; box-shadow: 0 12px 20px -5px rgba(155, 114, 203, 0.4); margin-bottom: 24px; }
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .kc-avatar-container { width: 110px; height: 110px; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.8); margin: 0 auto 16px auto; overflow: hidden; background: #e5e7eb; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.3s; }
+        .kc-avatar-container:hover { transform: scale(1.1); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
+        .kc-avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+        .kc-avatar-placeholder { font-size: 45px; }
+
+        .kc-emp-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .kc-emp-role { font-size: 15px; color: rgba(255,255,255,0.9); font-weight: 500; }
+        .kc-emp-dept { font-size: 12px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-top: 10px; font-weight: 600; }
+
+        .kc-section-title { font-size: 13px; font-weight: 700; color: #4b5563; margin: 20px 8px 10px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kc-info-box { background: #ffffff; border-radius: 16px; padding: 8px 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.02); }
+        .kc-info-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 8px; border-bottom: 1px solid #f3f4f6; border-radius: 8px; }
+        .kc-info-row:last-child { border-bottom: none; }
+        .kc-info-row:hover { background-color: #f8fafc; padding-left: 12px; padding-right: 12px; }
+        .kc-info-label { font-size: 14px; color: #4b5563; font-weight: 500; }
+        .kc-info-value { font-size: 14px; font-weight: 600; color: #1f2937; text-align: right; }
+
+        .kc-badge { padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+        .kc-badge-success { background: #d1fae5; color: #065f46; }
+        .kc-badge-danger { background: #fee2e2; color: #991b1b; }
+        .kc-badge-warning { background: #fef3c7; color: #92400e; }
+
+        .kc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
+        .kc-stat-card { background: #ffffff; border-radius: 16px; padding: 20px 16px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: transform 0.3s; }
+        .kc-stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .kc-stat-num { font-size: 28px; font-weight: 800; margin-top: 8px; transition: transform 0.3s; }
+
+        .kc-connect-row { display: flex; gap: 12px; margin: 20px 0; }
+        .kc-connect-btn { flex: 1; display: flex; align-items: center; justify-content: center; padding: 14px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; color: white; transition: all 0.3s; gap: 6px;}
+        .kc-btn-wa { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .kc-btn-mail { background: linear-gradient(135deg, #EA4335, #C5221F); }
+        .kc-connect-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); filter: brightness(1.1); }
+        
+        .name-link-clickable { color: var(--accent-tosca); cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        .name-link-clickable:hover { color: var(--accent-orange); text-decoration: underline; }
+
         /* Print Settings */
         @media print {
             body { background: #ffffff !important; padding: 0; margin: 0; }
@@ -181,7 +167,6 @@
             th, td { border: 1px solid #cbd5e1 !important; padding: 8px !important; font-size: 9pt; white-space: normal; word-break: break-word; }
             th { background-color: #f1f5f9 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .badge { border: none !important; padding: 0 !important; background: transparent !important; color: #000 !important; }
-            .profile-img:hover { transform: none !important; box-shadow: none !important; }
             @page { margin: 15mm; size: landscape; }
         }
     </style>
@@ -299,6 +284,50 @@
         <img id="modalImg" class="photo-modal-content" src="" alt="Pratinjau Foto" onclick="event.stopPropagation()">
     </div>
 
+    <div id="employeeCardModal" class="photo-modal" onclick="closeEmployeeCard()">
+        <div class="kc-modal-wrapper" onclick="event.stopPropagation()">
+            <span class="photo-modal-close" style="top: 15px; right: 20px; font-size: 2rem;" onclick="closeEmployeeCard()">&times;</span>
+            
+            <div class="kc-profile-card">
+                <div class="kc-avatar-container" id="kc-photo-container"></div>
+                <div class="kc-emp-name" id="kc-view-nama">Nama Lengkap</div>
+                <div class="kc-emp-role" id="kc-view-jabatan">Jabatan</div>
+                <div class="kc-emp-dept" id="kc-view-departemen">Departemen</div>
+            </div>
+
+            <div class="kc-grid-2">
+                <div class="kc-stat-card">
+                    <div class="kc-info-label">Jumlah Izin</div>
+                    <div class="kc-stat-num" id="kc-view-izin" style="color: #f59e0b;">0</div>
+                </div>
+                <div class="kc-stat-card">
+                    <div class="kc-info-label">Point Disiplin</div>
+                    <div class="kc-stat-num" id="kc-view-disiplin" style="color: #3b82f6;">0</div>
+                </div>
+            </div>
+
+            <div class="kc-connect-row">
+                <a href="#" id="kc-link-wa" class="kc-connect-btn kc-btn-wa" target="_blank"><i class="fa-brands fa-whatsapp"></i> Hubungi WA</a>
+                <a href="#" id="kc-link-mail" class="kc-connect-btn kc-btn-mail" target="_blank"><i class="fa-solid fa-envelope"></i> Kirim Email</a>
+            </div>
+
+            <div class="kc-section-title">Informasi Pekerjaan</div>
+            <div class="kc-info-box">
+                <div class="kc-info-row"><div class="kc-info-label">ID Karyawan</div><div class="kc-info-value" id="kc-view-id"></div></div>
+                <div class="kc-info-row"><div class="kc-info-label">Status Kerja</div><div class="kc-info-value"><span id="kc-view-status-kerja" class="kc-badge"></span></div></div>
+                <div class="kc-info-row"><div class="kc-info-label">Tanggal Masuk</div><div class="kc-info-value" id="kc-view-tgl-masuk"></div></div>
+                <div class="kc-info-row"><div class="kc-info-label">Masa Kerja</div><div class="kc-info-value" id="kc-view-masa-kerja"></div></div>
+            </div>
+
+            <div class="kc-section-title">Jaminan Sosial (BPJS)</div>
+            <div class="kc-info-box">
+                <div class="kc-info-row"><div class="kc-info-label">No. BPJS Kesehatan</div><div class="kc-info-value" id="kc-view-bpjs-kes">-</div></div>
+                <div class="kc-info-row"><div class="kc-info-label">No. BPJS TK</div><div class="kc-info-value" id="kc-view-bpjs-tk">-</div></div>
+                <div class="kc-info-row"><div class="kc-info-label">Status BPJS TK</div><div class="kc-info-value"><span id="kc-view-status-bpjs-tk" class="kc-badge"></span></div></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzoOz3tAzQO2K0KJvgtXzJIt279jePIj2FDNZHhVRXEh7L8mMZrsPsZex4fkQ0y4Wdx6A/exec"; 
         
@@ -349,10 +378,61 @@
                     "Jabatan": i === 1 ? "CEO" : (i === 2 ? "Operator" : "Helper"),
                     "Departemen": i === 1 ? "Engineering" : "Produksi",
                     "Status Kerja": "aktif Kerja Waktu",
-                    "Point Disiplin": i === 1 ? 0 : (i === 2 ? 45 : 120)
+                    "Tanggal Masuk": i === 1 ? "2020-05-15" : (i === 2 ? "2021-08-20" : "2023-01-10"), // Ditambahkan untuk tes
+                    "Point Disiplin": i === 1 ? 0 : (i === 2 ? 45 : 120),
+                    "No. BPJS KES": "00012345678" + i,
+                    "No. BPJS TK": "9876543210" + i,
+                    "Status BPJS TK": "Aktif",
+                    "Jumlah Izin": i === 1 ? 0 : 2,
+                    "Whatsapp": "08123456789" + i,
+                    "Email": "email" + i + "@msb.co.id"
                 });
             }
             initializeDashboard();
+        }
+
+        // FUNGSI BARU UNTUK MENGHITUNG MASA KERJA
+        function hitungMasaKerja(tanggalMasukStr) {
+            if (!tanggalMasukStr || tanggalMasukStr === "-") return "-";
+            
+            let startDate = new Date(tanggalMasukStr);
+            
+            // Coba parsing manual jika format dari Google Sheets adalah DD/MM/YYYY
+            if (isNaN(startDate.getTime())) {
+                let parts = String(tanggalMasukStr).split('/');
+                if (parts.length === 3) {
+                    startDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                } else {
+                    return "-";
+                }
+            }
+            if (isNaN(startDate.getTime())) return "-";
+
+            const endDate = new Date();
+            if (startDate > endDate) return "Belum Mulai";
+
+            let years = endDate.getFullYear() - startDate.getFullYear();
+            let months = endDate.getMonth() - startDate.getMonth();
+            let days = endDate.getDate() - startDate.getDate();
+
+            if (days < 0) {
+                months--;
+                // Ambil jumlah hari di bulan sebelumnya
+                const prevMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 0);
+                days += prevMonth.getDate();
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            let result = [];
+            if (years > 0) result.push(`${years} Tahun`);
+            if (months > 0) result.push(`${months} Bulan`);
+            if (days > 0) result.push(`${days} Hari`);
+
+            return result.length > 0 ? result.join(", ") : "0 Hari";
         }
 
         function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
@@ -415,17 +495,16 @@
                     
                     if (col.toLowerCase().includes("foto")) {
                         if (val && val !== "") {
-                            // Menambahkan trigger 'openModal' saat gambar diklik
-                            td.innerHTML = `<img src="${val}" alt="Foto" class="profile-img" 
-                                            onclick="openModal(this.src)"
-                                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff';">`;
+                            td.innerHTML = `<img src="${val}" alt="Foto" class="profile-img" onclick="openModal(this.src)" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff';">`;
                         } else {
                             let inisial = row['Nama Lengkap'] ? row['Nama Lengkap'].charAt(0) : '-';
-                            // Placeholder inisial juga diberi trigger klik agar adil jika avatarnya ter-generate otomatis
                             let avatarFallbackUrl = `https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff&size=512`;
                             td.innerHTML = `<div class="profile-placeholder" style="cursor:pointer;" onclick="openModal('${avatarFallbackUrl}')">${inisial}</div>`;
                         }
                     } 
+                    else if (col === "Nama Lengkap") {
+                        td.innerHTML = `<span class="name-link-clickable" onclick="openEmployeeCard('${row['ID Karyawan']}')" title="Buka Detail Karyawan"><i class="fa-regular fa-id-card"></i> ${val}</span>`;
+                    }
                     else if ((col === "Status Kerja" || col === "Status BPJS TK" || col === "Catatan Evaluasi") && val) {
                         const vLower = String(val).toLowerCase();
                         let badgeClass = "badge badge-active";
@@ -488,21 +567,83 @@
             XLSX.writeFile(wb, "HR_Summary_Archive.xlsx");
         }
 
-        /* Functions for Lightbox Preview Box */
         function openModal(src) {
             const modal = document.getElementById('photoModal');
             const modalImg = document.getElementById('modalImg');
             modalImg.src = src;
             modal.style.display = 'flex';
-            // Timeout kecil untuk memicu transisi opacity & CSS scale smooth
             setTimeout(() => modal.classList.add('show'), 15);
         }
 
         function closeModal() {
             const modal = document.getElementById('photoModal');
             modal.classList.remove('show');
-            // Menunggu animasi transisi selesai (300ms) sebelum mengubah display ke none
             setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+
+        function openEmployeeCard(idKaryawan) {
+            const emp = globalData.find(e => e["ID Karyawan"] == idKaryawan);
+            if(!emp) return;
+
+            document.getElementById("kc-view-nama").innerText = emp["Nama Lengkap"] || "-";
+            document.getElementById("kc-view-jabatan").innerText = emp["Jabatan"] || "-";
+            document.getElementById("kc-view-departemen").innerText = emp["Departemen"] || "-";
+            document.getElementById("kc-view-id").innerText = emp["ID Karyawan"] || "-";
+            document.getElementById("kc-view-tgl-masuk").innerText = emp["Tanggal Masuk"] || "-";
+            
+            // MEMANGGIL FUNGSI HITUNG MASA KERJA DI SINI
+            document.getElementById("kc-view-masa-kerja").innerText = hitungMasaKerja(emp["Tanggal Masuk"]);
+
+            document.getElementById("kc-view-bpjs-kes").innerText = emp["No. BPJS KES"] || "-";
+            document.getElementById("kc-view-bpjs-tk").innerText = emp["No. BPJS TK"] || "-";
+            
+            document.getElementById("kc-view-izin").innerText = (emp["Jumlah Izin"] !== undefined && emp["Jumlah Izin"] !== "") ? emp["Jumlah Izin"] : 0;
+            
+            document.getElementById("kc-view-disiplin").innerText = (emp["Point Disiplin"] !== undefined && emp["Point Disiplin"] !== "") ? emp["Point Disiplin"] : 0;
+
+            const skBadge = document.getElementById("kc-view-status-kerja");
+            let statusKerja = emp["Status Kerja"] || "-";
+            skBadge.innerText = statusKerja;
+            skBadge.className = "kc-badge " + (statusKerja.toLowerCase().includes("tetap") ? "kc-badge-success" : (statusKerja.toLowerCase().includes("tidak") || statusKerja.toLowerCase().includes("resign") ? "kc-badge-danger" : "kc-badge-warning"));
+
+            const bjsBadge = document.getElementById("kc-view-status-bpjs-tk");
+            let statusBPJS = emp["Status BPJS TK"] || "-";
+            bjsBadge.innerText = statusBPJS;
+            bjsBadge.className = "kc-badge " + (statusBPJS.toLowerCase() === "aktif" ? "kc-badge-success" : "kc-badge-danger");
+
+            const linkWa = document.getElementById("kc-link-wa");
+            if (emp["Whatsapp"]) {
+                let waClean = emp["Whatsapp"].toString().replace(/[^0-9]/g, '');
+                if (waClean.startsWith("0")) waClean = "62" + waClean.slice(1);
+                linkWa.href = `https://wa.me/${waClean}`;
+                linkWa.style.display = "flex";
+            } else { linkWa.style.display = "none"; }
+
+            const linkMail = document.getElementById("kc-link-mail");
+            if (emp["Email"]) {
+                linkMail.href = `mailto:${emp["Email"].toString().trim()}`;
+                linkMail.style.display = "flex";
+            } else { linkMail.style.display = "none"; }
+
+            const photoContainer = document.getElementById("kc-photo-container");
+            let imgUrl = emp["Foto Profil"];
+            if (imgUrl && imgUrl !== "") {
+                photoContainer.innerHTML = `<img src="${imgUrl}" alt="Foto Profil" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'kc-avatar-placeholder\\'>${emp['Nama Lengkap'].charAt(0)}</div>';">`;
+            } else {
+                let inisial = emp["Nama Lengkap"] ? emp["Nama Lengkap"].charAt(0) : "-";
+                let avatarFallbackUrl = `https://ui-avatars.com/api/?name=${emp['Nama Lengkap']}&background=0d9488&color=fff&size=512`;
+                photoContainer.innerHTML = `<img src="${avatarFallbackUrl}" alt="Foto Profil">`;
+            }
+
+            const modal = document.getElementById("employeeCardModal");
+            modal.style.display = "flex";
+            setTimeout(() => modal.classList.add("show"), 15);
+        }
+
+        function closeEmployeeCard() {
+            const modal = document.getElementById("employeeCardModal");
+            modal.classList.remove("show");
+            setTimeout(() => { modal.style.display = "none"; }, 300);
         }
 
         window.onload = fetchData;
