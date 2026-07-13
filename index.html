@@ -17,14 +17,14 @@
             --text-main: #0f172a;
             --text-muted: #475569;
             --accent-tosca: #0d9488;
-            --accent-tosca-glow: rgba(13, 148, 136, 0.2);
+            --accent-tosca-glow: rgba(13, 148, 136, 0.5);
             --accent-orange: #ea580c;
             --accent-green: #16a34a;
             --danger: #ef4444;
             --success: #10b981;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: all 0.2s ease; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: all 0.25s ease-in-out; }
 
         body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding: 16px; overflow-x: hidden; position: relative; }
 
@@ -35,27 +35,38 @@
 
         @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(20px, 20px) scale(1.02); } }
 
-        .container { max-width: 1440px; margin: 0 auto; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
+        .container { width: 98%; max-width: 1800px; margin: 0 auto; position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
 
         /* Panel Styling */
         .glass-panel { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); padding: 16px; }
-        .glass-panel:hover { box-shadow: 0 6px 24px var(--accent-tosca-glow); border-color: rgba(20, 184, 166, 0.2); }
+        .glass-panel:hover { box-shadow: 0 10px 30px var(--accent-tosca-glow); border-color: rgba(20, 184, 166, 0.4); transform: translateY(-2px); }
 
-        /* Top Bar */
+        /* Top Bar & Normal Logo Dashboard */
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; }
+        .top-bar-left { display: flex; align-items: center; gap: 15px; }
+        
+        .main-logo { height: 42px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+
         .title-section h1 { font-size: 1.4rem; font-weight: 700; background: linear-gradient(to right, var(--accent-tosca), var(--accent-orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; }
         .title-section p { color: var(--text-muted); font-size: 0.8rem; font-weight: 500; }
         
         .controls-section { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .datetime-display { font-family: monospace; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-right: 8px; background: rgba(255,255,255,0.6); padding: 6px 12px; border-radius: 16px; border: 1px solid var(--glass-border); }
-        .btn { background: #fff; color: var(--text-main); border: 1px solid rgba(20, 184, 166, 0.3); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-        .btn:hover { background: var(--accent-tosca); color: #fff; transform: translateY(-1px); }
-        .btn-print:hover { background: var(--accent-orange); border-color: var(--accent-orange); }
+        .btn { background: #fff; color: var(--text-main); border: 1px solid rgba(20, 184, 166, 0.3); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; position: relative; overflow: hidden; }
+        
+        .btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 150%; height: 150%; background: rgba(255,255,255,0.2); transform: translate(-50%, -50%) scale(0); border-radius: 50%; opacity: 0; transition: transform 0.4s, opacity 0.4s; }
+        .btn:active::after { transform: translate(-50%, -50%) scale(1); opacity: 1; transition: 0s; }
+        .btn:hover { background: var(--accent-tosca); color: #fff; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(13, 148, 136, 0.3); }
+        .btn-print:hover { background: var(--accent-orange); border-color: var(--accent-orange); box-shadow: 0 6px 15px rgba(234, 88, 12, 0.3); }
+
+        .btn-appsheet { background: #8b5cf6; color: white; border: none; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3); }
+        .btn-appsheet:hover { background: #7c3aed; color: white; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5); }
 
         /* Summary Grid */
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-        .card { display: flex; align-items: center; gap: 14px; padding: 12px 16px; }
-        .card-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(255,255,255,0.8); }
+        .card { display: flex; align-items: center; gap: 14px; padding: 12px 16px; cursor: default; }
+        .card-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: rgba(255,255,255,0.8); transition: transform 0.3s; }
+        .card:hover .card-icon { transform: scale(1.15) rotate(5deg); }
         .card-info h3 { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
         .card-info p { font-size: 1.4rem; font-weight: 800; color: var(--text-main); }
 
@@ -64,7 +75,7 @@
         .input-group { display: flex; flex-direction: column; gap: 4px; }
         .input-group label { font-size: 0.75rem; color: var(--accent-tosca); font-weight: 700; text-transform: uppercase; }
         .custom-select, .custom-input { width: 100%; background: rgba(255,255,255,0.9); border: 1px solid rgba(20, 184, 166, 0.3); padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; outline: none; }
-        .custom-select:focus, .custom-input:focus { border-color: var(--accent-orange); }
+        .custom-select:focus, .custom-input:focus { border-color: var(--accent-orange); box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1); }
         .search-box { position: relative; }
         .search-box i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; }
 
@@ -83,14 +94,16 @@
         .row-teguran { background-color: #e8f4fd; color: #0369a1; font-weight: 600; }
 
         /* Main Data Table */
-        .table-container { overflow-x: auto; max-height: 400px; scrollbar-width: thin; scrollbar-color: var(--accent-tosca) transparent; margin-bottom: 10px; }
+        .table-container { overflow-x: auto; max-height: 400px; scrollbar-width: thin; scrollbar-color: var(--accent-tosca) transparent; margin-bottom: 10px; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); white-space: nowrap; font-size: 0.8rem; vertical-align: middle;}
         th { background: rgba(255,255,255,0.9); position: sticky; top: 0; z-index: 10; color: var(--text-main); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; border-bottom: 2px solid rgba(20, 184, 166, 0.2); }
-        tbody tr:hover { background: rgba(255, 255, 255, 0.95); }
+        
+        tbody tr { transition: all 0.2s ease; cursor: default; }
+        tbody tr:hover { background: #fff; box-shadow: inset 4px 0 0 var(--accent-tosca), 0 4px 15px rgba(0,0,0,0.05); transform: scale(1.002); }
 
-        .profile-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--accent-tosca); padding: 1px; background: #fff; cursor: pointer; position: relative; z-index: 1; transition: transform 0.3s, box-shadow 0.3s; }
-        .profile-img:hover { transform: scale(1.5); box-shadow: 0 10px 20px rgba(13, 148, 136, 0.4); z-index: 99; }
+        .profile-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--accent-tosca); padding: 1px; background: #fff; cursor: pointer; position: relative; z-index: 1; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s; }
+        .profile-img:hover { transform: scale(1.8); box-shadow: 0 15px 30px rgba(13, 148, 136, 0.5); z-index: 99; border-radius: 8px; }
         .profile-placeholder { width: 40px; height: 40px; border-radius: 6px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 700; font-size: 1rem; border: 1px dashed #cbd5e1; flex-shrink: 0; }
         
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
@@ -101,65 +114,163 @@
         .footer-license { text-align: center; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); }
         .footer-license span { color: var(--accent-tosca); font-weight: 700; }
 
+        /* Initial Loader Screen */
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--accent-tosca); font-weight: 600; }
-        .spinner { width: 40px; height: 40px; border: 3px solid rgba(13, 148, 136, 0.2); border-top: 3px solid var(--accent-tosca); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
+        
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Modal Default (Photo Preview) */
-        .photo-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s ease; }
+        /* Overlay Transisi AppSheet (Loading Bulat Neon dengan Logo) */
+        #page-transition-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95); z-index: 10005;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        #page-transition-overlay.active { opacity: 1; pointer-events: all; }
+
+        .loading-circle-neon {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 15px var(--accent-tosca), 0 0 30px var(--accent-tosca-glow), inset 0 0 10px var(--accent-tosca);
+            border: 2px solid var(--accent-tosca);
+            animation: pulse-neon 1.5s infinite alternate;
+        }
+        .loading-circle-neon img {
+            width: 75%;
+            object-fit: contain;
+        }
+        .loading-spinner-ring {
+            position: absolute;
+            top: -12px; left: -12px; right: -12px; bottom: -12px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--accent-orange);
+            border-right: 3px solid var(--accent-tosca);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes pulse-neon {
+            0% { box-shadow: 0 0 10px var(--accent-tosca), 0 0 20px var(--accent-tosca-glow), inset 0 0 5px var(--accent-tosca); }
+            100% { box-shadow: 0 0 20px var(--accent-tosca), 0 0 35px var(--accent-tosca), inset 0 0 12px var(--accent-tosca); }
+        }
+
+        /* Modal Default Base */
+        .photo-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.3s ease; }
         .photo-modal.show { display: flex; opacity: 1; }
-        .photo-modal-content { max-width: 90%; max-height: 80vh; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 4px solid #fff; transform: scale(0.7); transition: transform 0.3s; }
+        .photo-modal-content { max-width: 90%; max-height: 80vh; border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 4px solid #fff; transform: scale(0.7); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .photo-modal.show .photo-modal-content { transform: scale(1); }
         .photo-modal-close { position: absolute; top: 25px; right: 35px; color: #fff; font-size: 2.5rem; font-weight: bold; cursor: pointer; transition: color 0.2s; z-index: 10001;}
-        .photo-modal-close:hover { color: var(--danger); }
+        .photo-modal-close:hover { color: var(--danger); transform: scale(1.2); }
 
-        /* Styles khusus Karyawan Card */
-        .kc-modal-wrapper { width: 100%; max-width: 480px; background: #f4f6f8; border-radius: 20px; padding: 20px; max-height: 90vh; overflow-y: auto; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;}
-        .photo-modal.show .kc-modal-wrapper { transform: scale(1); }
+        /* Karyawan Card Modal */
+        .kc-modal-wrapper { width: 100%; max-width: 480px; background: #f4f6f8; border-radius: 20px; padding: 20px; max-height: 90vh; overflow-y: auto; transform: translateY(50px) scale(0.9); opacity: 0; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s; position: relative;}
+        .photo-modal.show .kc-modal-wrapper { transform: translateY(0) scale(1); opacity: 1; }
         
+        /* AppSheet Modal wrapper & Tombol Tutup Modern Minimalis */
+        .appsheet-wrapper { width: 98vw; height: 96vh; background: #fff; border-radius: 16px; overflow: hidden; position: relative; transform: scale(0.95); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); }
+        .photo-modal.show .appsheet-wrapper { transform: scale(1); }
+
+        /* Desain Tombol Tutup AppSheet Diperkecil */
+        .modern-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: rgba(15, 23, 42, 0.4); /* Transparan */
+            backdrop-filter: blur(5px);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.25s ease;
+        }
+        .modern-close-btn:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Login Modal & Logo Neon */
+        .login-wrapper { width: 100%; max-width: 400px; background: #fff; border-radius: 16px; padding: 30px; position: relative; transform: translateY(30px) scale(0.9); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
+        .photo-modal.show .login-wrapper { transform: translateY(0) scale(1); }
+        
+        .login-logo-wrapper {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            padding: 12px 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px var(--accent-tosca), 0 0 25px var(--accent-tosca-glow);
+            border: 2px solid var(--accent-tosca);
+            animation: pulse-neon 2s infinite alternate;
+            margin-bottom: 20px;
+        }
+        .login-logo {
+            height: 35px;
+            object-fit: contain;
+        }
+
+        .login-header { font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 20px; }
+        .login-form .input-group { text-align: left; margin-bottom: 15px; }
+        .login-btn { width: 100%; padding: 12px; background: var(--accent-tosca); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; position: relative; overflow: hidden; }
+        .login-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 150%; height: 150%; background: rgba(255,255,255,0.2); transform: translate(-50%, -50%) scale(0); border-radius: 50%; opacity: 0; transition: transform 0.4s, opacity 0.4s; }
+        .login-btn:active::after { transform: translate(-50%, -50%) scale(1); opacity: 1; transition: 0s; }
+        .login-btn:hover { background: #0f766e; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(13, 148, 136, 0.4); }
+
+        /* Detail Styles untuk Modal Employee Card */
         .kc-profile-card { background: linear-gradient(-45deg, #4285f4, #9b72cb, #d96570, #4285f4); background-size: 300% 300%; animation: gradientMove 8s ease infinite; border-radius: 20px; padding: 30px 24px; color: white; text-align: center; box-shadow: 0 12px 20px -5px rgba(155, 114, 203, 0.4); margin-bottom: 24px; }
         @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        
         .kc-avatar-container { width: 110px; height: 110px; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.8); margin: 0 auto 16px auto; overflow: hidden; background: #e5e7eb; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.3s; }
-        .kc-avatar-container:hover { transform: scale(1.1); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
+        .kc-avatar-container:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
         .kc-avatar-container img { width: 100%; height: 100%; object-fit: cover; }
         .kc-avatar-placeholder { font-size: 45px; }
 
         .kc-emp-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .kc-emp-role { font-size: 15px; color: rgba(255,255,255,0.9); font-weight: 500; }
         .kc-emp-dept { font-size: 12px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); padding: 6px 14px; border-radius: 20px; display: inline-block; margin-top: 10px; font-weight: 600; }
-
         .kc-section-title { font-size: 13px; font-weight: 700; color: #4b5563; margin: 20px 8px 10px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .kc-info-box { background: #ffffff; border-radius: 16px; padding: 8px 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.02); }
         .kc-info-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 8px; border-bottom: 1px solid #f3f4f6; border-radius: 8px; }
         .kc-info-row:last-child { border-bottom: none; }
-        .kc-info-row:hover { background-color: #f8fafc; padding-left: 12px; padding-right: 12px; }
+        .kc-info-row:hover { background-color: #f8fafc; padding-left: 12px; padding-right: 12px; box-shadow: inset 3px 0 0 var(--accent-tosca); }
         .kc-info-label { font-size: 14px; color: #4b5563; font-weight: 500; }
         .kc-info-value { font-size: 14px; font-weight: 600; color: #1f2937; text-align: right; }
-
         .kc-badge { padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
         .kc-badge-success { background: #d1fae5; color: #065f46; }
         .kc-badge-danger { background: #fee2e2; color: #991b1b; }
         .kc-badge-warning { background: #fef3c7; color: #92400e; }
-
         .kc-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
         .kc-stat-card { background: #ffffff; border-radius: 16px; padding: 20px 16px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: transform 0.3s; }
-        .kc-stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .kc-stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid rgba(20, 184, 166, 0.2); }
         .kc-stat-num { font-size: 28px; font-weight: 800; margin-top: 8px; transition: transform 0.3s; }
-
         .kc-connect-row { display: flex; gap: 12px; margin: 20px 0; }
         .kc-connect-btn { flex: 1; display: flex; align-items: center; justify-content: center; padding: 14px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; color: white; transition: all 0.3s; gap: 6px;}
         .kc-btn-wa { background: linear-gradient(135deg, #25D366, #128C7E); }
         .kc-btn-mail { background: linear-gradient(135deg, #EA4335, #C5221F); }
-        .kc-connect-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); filter: brightness(1.1); }
-        
+        .kc-connect-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 12px rgba(0,0,0,0.15); filter: brightness(1.1); }
         .name-link-clickable { color: var(--accent-tosca); cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
-        .name-link-clickable:hover { color: var(--accent-orange); text-decoration: underline; }
+        .name-link-clickable:hover { color: var(--accent-orange); text-decoration: underline; transform: translateX(2px); }
 
         /* Print Settings */
         @media print {
             body { background: #ffffff !important; padding: 0; margin: 0; }
-            .ambient-blob, .controls-section, .filter-panel, .chart-container, #loader, .photo-modal { display: none !important; }
+            .ambient-blob, .controls-section, .filter-panel, .chart-container, #loader, .photo-modal, #page-transition-overlay, .main-logo { display: none !important; }
             .glass-panel { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin-bottom: 15px; }
             .viz-section { display: block; margin-bottom: 0; }
             .table-container { max-height: none !important; overflow: visible !important; border: none; }
@@ -176,18 +287,31 @@
     <div class="ambient-blob blob-2"></div>
 
     <div id="loader">
-        <div class="spinner"></div>
+        <div class="loading-spinner-ring" style="position:relative; width:40px; height:40px; top:auto; left:auto; margin-bottom:12px;"></div>
         <p>Mengambil data MSB ERP System...</p>
+    </div>
+
+    <!-- Overlay Transisi antar halaman (Logo dengan lingkaran neon) -->
+    <div id="page-transition-overlay">
+        <div class="loading-circle-neon">
+            <img src="MSB Logo.png" alt="Loading">
+            <div class="loading-spinner-ring"></div>
+        </div>
     </div>
 
     <div class="container">
         <div class="glass-panel top-bar">
-            <div class="title-section">
-                <h1>Human Resource System</h1>
-                <p>PT Murinda Sentra Baja - Kalijati Plant</p>
+            <div class="top-bar-left">
+                <!-- Logo Utama di Dashboard tanpa efek neon -->
+                <img src="MSB Logo.png" alt="MSB Logo" class="main-logo">
+                <div class="title-section">
+                    <h1>Human Resource System</h1>
+                    <p>PT Murinda Sentra Baja - Kalijati Plant</p>
+                </div>
             </div>
             <div class="controls-section">
                 <div class="datetime-display" id="datetime"></div>
+                <button class="btn btn-appsheet" onclick="handleOpenAppSheet()"><i class="fa-solid fa-mobile-screen"></i> Buka HR System</button>
                 <button class="btn" onclick="refreshData()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
                 <button class="btn" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export</button>
                 <button class="btn btn-print" onclick="printReport()"><i class="fa-solid fa-print"></i> Print</button>
@@ -279,6 +403,7 @@
         </div>
     </div>
 
+    <!-- Modals -->
     <div id="photoModal" class="photo-modal" onclick="closeModal()">
         <span class="photo-modal-close" onclick="closeModal()">&times;</span>
         <img id="modalImg" class="photo-modal-content" src="" alt="Pratinjau Foto" onclick="event.stopPropagation()">
@@ -286,31 +411,21 @@
 
     <div id="employeeCardModal" class="photo-modal" onclick="closeEmployeeCard()">
         <div class="kc-modal-wrapper" onclick="event.stopPropagation()">
-            <span class="photo-modal-close" style="top: 15px; right: 20px; font-size: 2rem;" onclick="closeEmployeeCard()">&times;</span>
-            
+            <span class="photo-modal-close" style="top: 15px; right: 20px; font-size: 2rem; color: #666;" onclick="closeEmployeeCard()">&times;</span>
             <div class="kc-profile-card">
                 <div class="kc-avatar-container" id="kc-photo-container"></div>
                 <div class="kc-emp-name" id="kc-view-nama">Nama Lengkap</div>
                 <div class="kc-emp-role" id="kc-view-jabatan">Jabatan</div>
                 <div class="kc-emp-dept" id="kc-view-departemen">Departemen</div>
             </div>
-
             <div class="kc-grid-2">
-                <div class="kc-stat-card">
-                    <div class="kc-info-label">Jumlah Izin</div>
-                    <div class="kc-stat-num" id="kc-view-izin" style="color: #f59e0b;">0</div>
-                </div>
-                <div class="kc-stat-card">
-                    <div class="kc-info-label">Point Disiplin</div>
-                    <div class="kc-stat-num" id="kc-view-disiplin" style="color: #3b82f6;">0</div>
-                </div>
+                <div class="kc-stat-card"><div class="kc-info-label">Jumlah Izin</div><div class="kc-stat-num" id="kc-view-izin" style="color: #f59e0b;">0</div></div>
+                <div class="kc-stat-card"><div class="kc-info-label">Point Disiplin</div><div class="kc-stat-num" id="kc-view-disiplin" style="color: #3b82f6;">0</div></div>
             </div>
-
             <div class="kc-connect-row">
                 <a href="#" id="kc-link-wa" class="kc-connect-btn kc-btn-wa" target="_blank"><i class="fa-brands fa-whatsapp"></i> Hubungi WA</a>
                 <a href="#" id="kc-link-mail" class="kc-connect-btn kc-btn-mail" target="_blank"><i class="fa-solid fa-envelope"></i> Kirim Email</a>
             </div>
-
             <div class="kc-section-title">Informasi Pekerjaan</div>
             <div class="kc-info-box">
                 <div class="kc-info-row"><div class="kc-info-label">ID Karyawan</div><div class="kc-info-value" id="kc-view-id"></div></div>
@@ -318,7 +433,6 @@
                 <div class="kc-info-row"><div class="kc-info-label">Tanggal Masuk</div><div class="kc-info-value" id="kc-view-tgl-masuk"></div></div>
                 <div class="kc-info-row"><div class="kc-info-label">Masa Kerja</div><div class="kc-info-value" id="kc-view-masa-kerja"></div></div>
             </div>
-
             <div class="kc-section-title">Jaminan Sosial (BPJS)</div>
             <div class="kc-info-box">
                 <div class="kc-info-row"><div class="kc-info-label">No. BPJS Kesehatan</div><div class="kc-info-value" id="kc-view-bpjs-kes">-</div></div>
@@ -328,7 +442,46 @@
         </div>
     </div>
 
+    <!-- Login Modal -->
+    <div id="loginModal" class="photo-modal" onclick="closeLoginModal()">
+        <div class="login-wrapper" onclick="event.stopPropagation()">
+            <span class="photo-modal-close" style="top: 15px; right: 20px; font-size: 2rem; color: #999;" onclick="closeLoginModal()">&times;</span>
+            
+            <!-- Logo MSB dengan efek Neon di form login -->
+            <div class="login-logo-wrapper">
+                <img src="MSB Logo.png" alt="Logo MSB" class="login-logo">
+            </div>
+
+            <div class="login-header">Human Resource System</div>
+            <div class="login-form">
+                <div class="input-group">
+                    <label>Pilih Nama Pengguna</label>
+                    <select class="custom-select" id="login-username" style="margin-top: 5px;">
+                        <option value="">Memuat data pengguna...</option>
+                    </select>
+                </div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label>Kata Sandi / PIN</label>
+                    <input type="password" class="custom-input" id="login-password" placeholder="Masukkan password" style="margin-top: 5px;" onkeypress="handleLoginEnter(event)">
+                </div>
+                <button class="login-btn" onclick="submitLogin()" id="btn-submit-login"><i class="fa-solid fa-right-to-bracket"></i> Masuk System</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AppSheet Modal -->
+    <div id="appSheetModal" class="photo-modal" onclick="closeAppSheetModal()">
+        <div class="appsheet-wrapper" onclick="event.stopPropagation()">
+            <!-- Desain Tombol Tutup AppSheet diperkecil agar tidak menutupi -->
+            <button class="modern-close-btn" onclick="closeAppSheetModal()">
+                <i class="fa-solid fa-xmark"></i> Tutup
+            </button>
+            <iframe src="https://www.appsheet.com/start/df6db52b-995a-4488-b064-5fe6d428c56a" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+
     <script>
+        const LOGIN_APP_URL = "https://script.google.com/macros/s/AKfycbxpQhXkBqDeEgU_ym_LfCntvlcIeJhXlnk8z8lV4TGphPsEpUgMo6b3po1eR8vwstC_oA/exec"; 
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzoOz3tAzQO2K0KJvgtXzJIt279jePIj2FDNZHhVRXEh7L8mMZrsPsZex4fkQ0y4Wdx6A/exec"; 
         
         let globalData = [];
@@ -337,6 +490,9 @@
         
         let deptChartInstance = null;
         let trendChartInstance = null;
+        
+        let isAppSheetLoggedIn = false;
+        let fetchedLoginData = [];
 
         function updateClock() {
             const now = new Date();
@@ -378,7 +534,7 @@
                     "Jabatan": i === 1 ? "CEO" : (i === 2 ? "Operator" : "Helper"),
                     "Departemen": i === 1 ? "Engineering" : "Produksi",
                     "Status Kerja": "aktif Kerja Waktu",
-                    "Tanggal Masuk": i === 1 ? "2020-05-15" : (i === 2 ? "2021-08-20" : "2023-01-10"), // Ditambahkan untuk tes
+                    "Tanggal Masuk": i === 1 ? "2020-05-15" : (i === 2 ? "2021-08-20" : "2023-01-10"),
                     "Point Disiplin": i === 1 ? 0 : (i === 2 ? 45 : 120),
                     "No. BPJS KES": "00012345678" + i,
                     "No. BPJS TK": "9876543210" + i,
@@ -391,92 +547,48 @@
             initializeDashboard();
         }
 
-   // FUNGSI BARU UNTUK MENGHITUNG MASA KERJA YANG SUDAH DIPERBAIKI
-function hitungMasaKerja(tanggalMasukStr) {
-    if (!tanggalMasukStr || tanggalMasukStr === "-" || String(tanggalMasukStr).trim() === "") return "-";
-    
-    let dateStr = String(tanggalMasukStr).trim();
-    dateStr = dateStr.split('T')[0]; // Buang waktu ISO jika ada
-
-    let startDate = new Date(dateStr); 
-    
-    // Kamus translasi bulan bahasa Indonesia ke index JavaScript (0-11)
-    const bulanMap = {
-        'jan': 0, 'januari': 0,
-        'feb': 1, 'februari': 1,
-        'mar': 2, 'maret': 2,
-        'apr': 3, 'april': 3,
-        'mei': 4,
-        'jun': 5, 'juni': 5,
-        'jul': 6, 'juli': 6,
-        'agu': 7, 'agustus': 7,
-        'sep': 8, 'september': 8,
-        'okt': 9, 'oktober': 9,
-        'nov': 10, 'november': 10,
-        'des': 11, 'desember': 11
-    };
-
-    // Jika parsing bawaan gagal, jalankan parsing manual
-    if (isNaN(startDate.getTime())) {
-        // Seragamkan pemisah menjadi spasi ("01-Mei-25" -> "01 Mei 25")
-        let cleanStr = dateStr.replace(/[\/\-]/g, ' ').trim(); 
-        let parts = cleanStr.split(/\s+/);
-        
-        if (parts.length === 3) {
-            let day, month, year;
+        function hitungMasaKerja(tanggalMasukStr) {
+            if (!tanggalMasukStr || tanggalMasukStr === "-" || String(tanggalMasukStr).trim() === "") return "-";
+            let dateStr = String(tanggalMasukStr).trim();
+            dateStr = dateStr.split('T')[0];
+            let startDate = new Date(dateStr); 
             
-            // Jika ada huruf di bagian bulan (format 01-Mei-25)
-            if (/[a-zA-Z]/.test(parts[1])) {
-                day = parseInt(parts[0], 10);
-                month = bulanMap[parts[1].toLowerCase()];
-                year = parseInt(parts[2], 10);
-            } 
-            // Jika semuanya angka murni (format DD-MM-YYYY atau YYYY-MM-DD)
-            else {
-                if (parts[2].length >= 4) { 
-                    day = parseInt(parts[0], 10); month = parseInt(parts[1], 10) - 1; year = parseInt(parts[2], 10);
-                } else if (parts[0].length >= 4) { 
-                    year = parseInt(parts[0], 10); month = parseInt(parts[1], 10) - 1; day = parseInt(parts[2], 10);
+            const bulanMap = { 'jan': 0, 'januari': 0, 'feb': 1, 'februari': 1, 'mar': 2, 'maret': 2, 'apr': 3, 'april': 3, 'mei': 4, 'jun': 5, 'juni': 5, 'jul': 6, 'juli': 6, 'agu': 7, 'agustus': 7, 'sep': 8, 'september': 8, 'okt': 9, 'oktober': 9, 'nov': 10, 'november': 10, 'des': 11, 'desember': 11 };
+
+            if (isNaN(startDate.getTime())) {
+                let cleanStr = dateStr.replace(/[\/\-]/g, ' ').trim(); 
+                let parts = cleanStr.split(/\s+/);
+                
+                if (parts.length === 3) {
+                    let day, month, year;
+                    if (/[a-zA-Z]/.test(parts[1])) {
+                        day = parseInt(parts[0], 10); month = bulanMap[parts[1].toLowerCase()]; year = parseInt(parts[2], 10);
+                    } else {
+                        if (parts[2].length >= 4) { day = parseInt(parts[0], 10); month = parseInt(parts[1], 10) - 1; year = parseInt(parts[2], 10); } 
+                        else if (parts[0].length >= 4) { year = parseInt(parts[0], 10); month = parseInt(parts[1], 10) - 1; day = parseInt(parts[2], 10); }
+                    }
+                    if (year < 100) year += 2000;
+                    if (month !== undefined && !isNaN(day) && !isNaN(year)) { startDate = new Date(year, month, day); }
                 }
             }
-            
-            // Konversi tahun 2 digit menjadi 4 digit (contoh: 25 -> 2025)
-            if (year < 100) year += 2000;
-            
-            // Buat objek tanggal baru jika data valid
-            if (month !== undefined && !isNaN(day) && !isNaN(year)) {
-                startDate = new Date(year, month, day);
-            }
+            if (isNaN(startDate.getTime())) return "-";
+            const endDate = new Date();
+            if (startDate > endDate) return "Belum Mulai";
+
+            let years = endDate.getFullYear() - startDate.getFullYear();
+            let months = endDate.getMonth() - startDate.getMonth();
+            let days = endDate.getDate() - startDate.getDate();
+
+            if (days < 0) { months--; const prevMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 0); days += prevMonth.getDate(); }
+            if (months < 0) { years--; months += 12; }
+
+            let result = [];
+            if (years > 0) result.push(`${years} Tahun`);
+            if (months > 0) result.push(`${months} Bulan`);
+            if (days > 0) result.push(`${days} Hari`);
+
+            return result.length > 0 ? result.join(", ") : "0 Hari";
         }
-    }
-
-    if (isNaN(startDate.getTime())) return "-";
-
-    const endDate = new Date();
-    if (startDate > endDate) return "Belum Mulai";
-
-    let years = endDate.getFullYear() - startDate.getFullYear();
-    let months = endDate.getMonth() - startDate.getMonth();
-    let days = endDate.getDate() - startDate.getDate();
-
-    if (days < 0) {
-        months--;
-        const prevMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 0);
-        days += prevMonth.getDate();
-    }
-
-    if (months < 0) {
-        years--;
-        months += 12;
-    }
-
-    let result = [];
-    if (years > 0) result.push(`${years} Tahun`);
-    if (months > 0) result.push(`${months} Bulan`);
-    if (days > 0) result.push(`${days} Hari`);
-
-    return result.length > 0 ? result.join(", ") : "0 Hari";
-}
 
         function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
         function refreshData() { fetchData(); }
@@ -494,13 +606,8 @@ function hitungMasaKerja(tanggalMasukStr) {
         function populateFilterOptions() {
             const depts = [...new Set(globalData.map(d => d["Departemen"]))].filter(Boolean).sort();
             const stats = [...new Set(globalData.map(d => d["Status Kerja"]))].filter(Boolean).sort();
-
-            const deptSelect = document.getElementById('filter-dept');
-            deptSelect.innerHTML = '<option value="All">Semua</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
-
-            const statSelect = document.getElementById('filter-status');
-            statSelect.innerHTML = '<option value="All">Semua</option>' + stats.map(s => `<option value="${s}">${s}</option>`).join('');
-
+            document.getElementById('filter-dept').innerHTML = '<option value="All">Semua</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+            document.getElementById('filter-status').innerHTML = '<option value="All">Semua</option>' + stats.map(s => `<option value="${s}">${s}</option>`).join('');
             updateJabatanOptions();
         }
 
@@ -508,7 +615,6 @@ function hitungMasaKerja(tanggalMasukStr) {
             const selectedDept = document.getElementById('filter-dept').value;
             let targetData = selectedDept !== "All" ? globalData.filter(d => d["Departemen"] == selectedDept) : globalData;
             const jabs = [...new Set(targetData.map(d => d["Jabatan"]))].filter(Boolean).sort();
-            
             document.getElementById('filter-jabatan').innerHTML = '<option value="All">Semua</option>' + jabs.map(j => `<option value="${j}">${j}</option>`).join('');
         }
 
@@ -535,7 +641,6 @@ function hitungMasaKerja(tanggalMasukStr) {
                 columns.forEach(col => {
                     const td = document.createElement('td');
                     let val = row[col] || "";
-                    
                     if (col.toLowerCase().includes("foto")) {
                         if (val && val !== "") {
                             td.innerHTML = `<img src="${val}" alt="Foto" class="profile-img" onclick="openModal(this.src)" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff';">`;
@@ -545,17 +650,13 @@ function hitungMasaKerja(tanggalMasukStr) {
                             td.innerHTML = `<div class="profile-placeholder" style="cursor:pointer;" onclick="openModal('${avatarFallbackUrl}')">${inisial}</div>`;
                         }
                     } 
-                    else if (col === "Nama Lengkap") {
-                        td.innerHTML = `<span class="name-link-clickable" onclick="openEmployeeCard('${row['ID Karyawan']}')" title="Buka Detail Karyawan"><i class="fa-regular fa-id-card"></i> ${val}</span>`;
-                    }
+                    else if (col === "Nama Lengkap") { td.innerHTML = `<span class="name-link-clickable" onclick="openEmployeeCard('${row['ID Karyawan']}')" title="Buka Detail Karyawan"><i class="fa-regular fa-id-card"></i> ${val}</span>`; }
                     else if ((col === "Status Kerja" || col === "Status BPJS TK" || col === "Catatan Evaluasi") && val) {
                         const vLower = String(val).toLowerCase();
                         let badgeClass = "badge badge-active";
                         if(vLower.includes("tidak") || vLower.includes("cuti") || vLower.includes("resign")) { badgeClass = "badge badge-inactive"; }
                         td.innerHTML = `<span class="${badgeClass}">${val}</span>`;
-                    } else { 
-                        td.textContent = val; 
-                    }
+                    } else { td.textContent = val; }
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
@@ -572,34 +673,21 @@ function hitungMasaKerja(tanggalMasukStr) {
         }
 
         function updateCharts() {
-            const deptCounts = {};
-            const deptDisiplin = {};
+            const deptCounts = {}; const deptDisiplin = {};
             filteredData.forEach(r => { 
-                let d = r["Departemen"]; 
-                let pts = parseFloat(r["Point Disiplin"]) || 0;
-                if(d) {
-                    deptCounts[d] = (deptCounts[d] || 0) + 1; 
-                    deptDisiplin[d] = (deptDisiplin[d] || 0) + pts;
-                }
+                let d = r["Departemen"]; let pts = parseFloat(r["Point Disiplin"]) || 0;
+                if(d) { deptCounts[d] = (deptCounts[d] || 0) + 1; deptDisiplin[d] = (deptDisiplin[d] || 0) + pts; }
             });
 
             const ctx1 = document.getElementById('deptChart').getContext('2d');
             if(deptChartInstance) deptChartInstance.destroy();
-            deptChartInstance = new Chart(ctx1, {
-                type: 'bar',
-                data: { labels: Object.keys(deptCounts), datasets: [{ data: Object.values(deptCounts), backgroundColor: 'rgba(234, 88, 12, 0.8)', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: {size: 10} } } } }
-            });
+            deptChartInstance = new Chart(ctx1, { type: 'bar', data: { labels: Object.keys(deptCounts), datasets: [{ data: Object.values(deptCounts), backgroundColor: 'rgba(234, 88, 12, 0.8)', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: {size: 10} } } } } });
 
             const labels = Object.keys(deptDisiplin);
             const dataAvg = labels.map(l => (deptDisiplin[l] / deptCounts[l]).toFixed(1));
             const ctx2 = document.getElementById('trendChart').getContext('2d');
             if(trendChartInstance) trendChartInstance.destroy();
-            trendChartInstance = new Chart(ctx2, {
-                type: 'line',
-                data: { labels: labels, datasets: [{ label: 'Avg Point Disiplin', data: dataAvg, borderColor: '#0d9488', backgroundColor: 'rgba(13, 148, 136, 0.1)', fill: true, tension: 0.3 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: {size: 10} } } } }
-            });
+            trendChartInstance = new Chart(ctx2, { type: 'line', data: { labels: labels, datasets: [{ label: 'Avg Point Disiplin', data: dataAvg, borderColor: '#0d9488', backgroundColor: 'rgba(13, 148, 136, 0.1)', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: {size: 10} } } } } });
         }
 
         function exportToExcel() {
@@ -610,83 +698,144 @@ function hitungMasaKerja(tanggalMasukStr) {
             XLSX.writeFile(wb, "HR_Summary_Archive.xlsx");
         }
 
-        function openModal(src) {
-            const modal = document.getElementById('photoModal');
-            const modalImg = document.getElementById('modalImg');
-            modalImg.src = src;
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 15);
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('photoModal');
-            modal.classList.remove('show');
-            setTimeout(() => { modal.style.display = 'none'; }, 300);
-        }
+        function openModal(src) { const modal = document.getElementById('photoModal'); document.getElementById('modalImg').src = src; modal.style.display = 'flex'; setTimeout(() => modal.classList.add('show'), 15); }
+        function closeModal() { const modal = document.getElementById('photoModal'); modal.classList.remove('show'); setTimeout(() => { modal.style.display = 'none'; }, 300); }
 
         function openEmployeeCard(idKaryawan) {
-            const emp = globalData.find(e => e["ID Karyawan"] == idKaryawan);
-            if(!emp) return;
-
+            const emp = globalData.find(e => e["ID Karyawan"] == idKaryawan); if(!emp) return;
             document.getElementById("kc-view-nama").innerText = emp["Nama Lengkap"] || "-";
             document.getElementById("kc-view-jabatan").innerText = emp["Jabatan"] || "-";
             document.getElementById("kc-view-departemen").innerText = emp["Departemen"] || "-";
             document.getElementById("kc-view-id").innerText = emp["ID Karyawan"] || "-";
             document.getElementById("kc-view-tgl-masuk").innerText = emp["Tanggal Masuk"] || "-";
-            
-            // MEMANGGIL FUNGSI HITUNG MASA KERJA DI SINI
             document.getElementById("kc-view-masa-kerja").innerText = hitungMasaKerja(emp["Tanggal Masuk"]);
-
             document.getElementById("kc-view-bpjs-kes").innerText = emp["No. BPJS KES"] || "-";
             document.getElementById("kc-view-bpjs-tk").innerText = emp["No. BPJS TK"] || "-";
-            
             document.getElementById("kc-view-izin").innerText = (emp["Jumlah Izin"] !== undefined && emp["Jumlah Izin"] !== "") ? emp["Jumlah Izin"] : 0;
-            
             document.getElementById("kc-view-disiplin").innerText = (emp["Point Disiplin"] !== undefined && emp["Point Disiplin"] !== "") ? emp["Point Disiplin"] : 0;
 
-            const skBadge = document.getElementById("kc-view-status-kerja");
-            let statusKerja = emp["Status Kerja"] || "-";
-            skBadge.innerText = statusKerja;
-            skBadge.className = "kc-badge " + (statusKerja.toLowerCase().includes("tetap") ? "kc-badge-success" : (statusKerja.toLowerCase().includes("tidak") || statusKerja.toLowerCase().includes("resign") ? "kc-badge-danger" : "kc-badge-warning"));
+            const skBadge = document.getElementById("kc-view-status-kerja"); let statusKerja = emp["Status Kerja"] || "-";
+            skBadge.innerText = statusKerja; skBadge.className = "kc-badge " + (statusKerja.toLowerCase().includes("tetap") ? "kc-badge-success" : (statusKerja.toLowerCase().includes("tidak") || statusKerja.toLowerCase().includes("resign") ? "kc-badge-danger" : "kc-badge-warning"));
 
-            const bjsBadge = document.getElementById("kc-view-status-bpjs-tk");
-            let statusBPJS = emp["Status BPJS TK"] || "-";
-            bjsBadge.innerText = statusBPJS;
-            bjsBadge.className = "kc-badge " + (statusBPJS.toLowerCase() === "aktif" ? "kc-badge-success" : "kc-badge-danger");
+            const bjsBadge = document.getElementById("kc-view-status-bpjs-tk"); let statusBPJS = emp["Status BPJS TK"] || "-";
+            bjsBadge.innerText = statusBPJS; bjsBadge.className = "kc-badge " + (statusBPJS.toLowerCase() === "aktif" ? "kc-badge-success" : "kc-badge-danger");
 
-            const linkWa = document.getElementById("kc-link-wa");
-            if (emp["Whatsapp"]) {
-                let waClean = emp["Whatsapp"].toString().replace(/[^0-9]/g, '');
-                if (waClean.startsWith("0")) waClean = "62" + waClean.slice(1);
-                linkWa.href = `https://wa.me/${waClean}`;
-                linkWa.style.display = "flex";
-            } else { linkWa.style.display = "none"; }
+            const linkWa = document.getElementById("kc-link-wa"); if (emp["Whatsapp"]) { let waClean = emp["Whatsapp"].toString().replace(/[^0-9]/g, ''); if (waClean.startsWith("0")) waClean = "62" + waClean.slice(1); linkWa.href = `https://wa.me/${waClean}`; linkWa.style.display = "flex"; } else { linkWa.style.display = "none"; }
+            const linkMail = document.getElementById("kc-link-mail"); if (emp["Email"]) { linkMail.href = `mailto:${emp["Email"].toString().trim()}`; linkMail.style.display = "flex"; } else { linkMail.style.display = "none"; }
 
-            const linkMail = document.getElementById("kc-link-mail");
-            if (emp["Email"]) {
-                linkMail.href = `mailto:${emp["Email"].toString().trim()}`;
-                linkMail.style.display = "flex";
-            } else { linkMail.style.display = "none"; }
+            const photoContainer = document.getElementById("kc-photo-container"); let imgUrl = emp["Foto Profil"];
+            if (imgUrl && imgUrl !== "") { photoContainer.innerHTML = `<img src="${imgUrl}" alt="Foto Profil" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'kc-avatar-placeholder\\'>${emp['Nama Lengkap'].charAt(0)}</div>';">`; } 
+            else { let inisial = emp["Nama Lengkap"] ? emp["Nama Lengkap"].charAt(0) : "-"; let avatarFallbackUrl = `https://ui-avatars.com/api/?name=${emp['Nama Lengkap']}&background=0d9488&color=fff&size=512`; photoContainer.innerHTML = `<img src="${avatarFallbackUrl}" alt="Foto Profil">`; }
 
-            const photoContainer = document.getElementById("kc-photo-container");
-            let imgUrl = emp["Foto Profil"];
-            if (imgUrl && imgUrl !== "") {
-                photoContainer.innerHTML = `<img src="${imgUrl}" alt="Foto Profil" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'kc-avatar-placeholder\\'>${emp['Nama Lengkap'].charAt(0)}</div>';">`;
+            const modal = document.getElementById("employeeCardModal"); modal.style.display = "flex"; setTimeout(() => modal.classList.add("show"), 15);
+        }
+
+        function closeEmployeeCard() { const modal = document.getElementById("employeeCardModal"); modal.classList.remove("show"); setTimeout(() => { modal.style.display = "none"; }, 400); }
+
+        function triggerPageTransition(callback) {
+            const overlay = document.getElementById('page-transition-overlay');
+            overlay.classList.add('active');
+            
+            setTimeout(() => {
+                callback();
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                }, 500); 
+            }, 800); 
+        }
+
+        function handleOpenAppSheet() {
+            if (isAppSheetLoggedIn) {
+                triggerPageTransition(openAppSheetModal);
             } else {
-                let inisial = emp["Nama Lengkap"] ? emp["Nama Lengkap"].charAt(0) : "-";
-                let avatarFallbackUrl = `https://ui-avatars.com/api/?name=${emp['Nama Lengkap']}&background=0d9488&color=fff&size=512`;
-                photoContainer.innerHTML = `<img src="${avatarFallbackUrl}" alt="Foto Profil">`;
+                openLoginModal();
             }
+        }
 
-            const modal = document.getElementById("employeeCardModal");
+        function openAppSheetModal() {
+            const modal = document.getElementById("appSheetModal");
             modal.style.display = "flex";
             setTimeout(() => modal.classList.add("show"), 15);
         }
 
-        function closeEmployeeCard() {
-            const modal = document.getElementById("employeeCardModal");
+        function closeAppSheetModal() {
+            const modal = document.getElementById("appSheetModal");
             modal.classList.remove("show");
-            setTimeout(() => { modal.style.display = "none"; }, 300);
+            setTimeout(() => { modal.style.display = "none"; }, 400);
+        }
+
+        function openLoginModal() {
+            const modal = document.getElementById("loginModal");
+            modal.style.display = "flex";
+            setTimeout(() => {
+                modal.classList.add("show");
+                document.getElementById("login-username").focus();
+            }, 15);
+            fetchLoginUsersViaAppsScript(); 
+        }
+
+        function closeLoginModal() {
+            const modal = document.getElementById("loginModal");
+            modal.classList.remove("show");
+            setTimeout(() => { modal.style.display = "none"; }, 400);
+        }
+
+        function handleLoginEnter(event) {
+            if (event.key === "Enter") {
+                submitLogin();
+            }
+        }
+
+        async function fetchLoginUsersViaAppsScript() {
+            const select = document.getElementById("login-username");
+            
+            if(LOGIN_APP_URL.includes("MASUKKAN_URL")) {
+                select.innerHTML = '<option value="">(Error) Masukkan URL Apps Script Anda di Source Code</option>';
+                return;
+            }
+
+            if(select.options.length > 1) return; 
+
+            try {
+                const response = await fetch(LOGIN_APP_URL);
+                const data = await response.json();
+                
+                fetchedLoginData = data;
+                
+                let optionsHtml = '<option value="">-- Pilih Nama --</option>';
+                data.forEach(item => {
+                    optionsHtml += `<option value="${item.username}">${item.username}</option>`;
+                });
+                select.innerHTML = optionsHtml;
+
+            } catch (error) {
+                console.error("Gagal menarik data nama login dari Apps Script:", error);
+                select.innerHTML = '<option value="">Gagal terhubung ke Database HR</option>';
+            }
+        }
+
+        function submitLogin() {
+            const user = document.getElementById("login-username").value;
+            const pass = document.getElementById("login-password").value;
+            
+            if(!user) {
+                alert("Silakan pilih nama Anda terlebih dahulu!");
+                return;
+            }
+
+            const matchedUser = fetchedLoginData.find(item => item.username === user && item.password === pass);
+
+            if (matchedUser) {
+                isAppSheetLoggedIn = true;
+                closeLoginModal();
+                document.getElementById("login-password").value = ""; 
+
+                triggerPageTransition(() => {
+                    openAppSheetModal();
+                });
+            } else {
+                alert("Kata sandi / PIN yang Anda masukkan salah!");
+            }
         }
 
         window.onload = fetchData;
