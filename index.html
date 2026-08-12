@@ -359,6 +359,8 @@
                 <button class="btn" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Ekspor Excel</button>
                 <button class="btn btn-print" onclick="printReport()"><i class="fa-solid fa-print"></i> Cetak Laporan</button>
                 <button class="btn btn-print" onclick="openCetakLamaranModal()"><i class="fa-solid fa-file-pdf"></i> Cetak Lamaran</button>
+                <!-- TAMBAHAN TOMBOL ID CARD DI SINI -->
+                <button class="btn btn-action" onclick="openIDCardModal()"><i class="fa-solid fa-id-card"></i> ID Card</button>
                 <button class="btn btn-action" onclick="openShareLinkModal()"><i class="fa-solid fa-share-nodes"></i> Bagikan Tautan</button>
             </div>
         </div>
@@ -460,7 +462,17 @@
             <button class="modern-close-btn" onclick="closeCetakLamaranModal()">
                 <i class="fa-solid fa-xmark"></i> Tutup
             </button>
-            <iframe src="https://script.google.com/macros/s/AKfycbzqSSfpVDSuoVtqaewDE93cWR0daDsiuy9PaW6WMUYMGrlT5lxN9nmLr0a6A-WvZK1gog/exec?page=cetak" style="width: 100%; height: 100%; border: none;"></iframe>
+            <iframe id="cetak-lamaran-iframe" data-src="https://script.google.com/macros/s/AKfycbzqSSfpVDSuoVtqaewDE93cWR0daDsiuy9PaW6WMUYMGrlT5lxN9nmLr0a6A-WvZK1gog/exec?page=cetak" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+
+    <!-- TAMBAHAN MODAL ID CARD KARYAWAN -->
+    <div id="idCardModal" class="photo-modal" onclick="closeIDCardModal()">
+        <div class="appsheet-wrapper" onclick="event.stopPropagation()">
+            <button class="modern-close-btn" onclick="closeIDCardModal()">
+                <i class="fa-solid fa-xmark"></i> Tutup
+            </button>
+            <iframe id="id-card-iframe" data-src="https://murindasentrabaja.github.io/ID-Card-Karyawan/" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
 
@@ -550,7 +562,7 @@
             <button class="modern-close-btn" onclick="closeAppSheetModal()">
                 <i class="fa-solid fa-xmark"></i> Tutup
             </button>
-            <iframe src="https://www.appsheet.com/start/df6db52b-995a-4488-b064-5fe6d428c56a" style="width: 100%; height: 100%; border: none;"></iframe>
+            <iframe id="appsheet-iframe" data-src="https://www.appsheet.com/start/df6db52b-995a-4488-b064-5fe6d428c56a" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
 
@@ -594,6 +606,7 @@
                 } else { alert("Data kosong di sheet summary."); }
             } catch (error) {
                 console.error("Gagal:", error);
+                alert("Gagal memuat data asli dari server (kemungkinan koneksi lambat/terganggu). Menampilkan DATA CONTOH sementara, bukan data aktual. Klik tombol 'Perbarui Data' untuk mencoba lagi.");
                 generateMockData(); 
             } finally { showLoader(false); }
         }
@@ -826,8 +839,23 @@
             }
         }
 
+        /* Helper: muat iframe HANYA saat modal dibuka (lazy-load), supaya
+           iframe tidak ikut fetch di background dan bentrok/berebut koneksi
+           dengan fetchData() saat halaman pertama kali dibuka. */
+        function lazyLoadIframe(iframeId) {
+            const iframe = document.getElementById(iframeId);
+            if (iframe && iframe.dataset.src && iframe.src !== iframe.dataset.src) {
+                iframe.src = iframe.dataset.src;
+            }
+        }
+        function unloadIframe(iframeId) {
+            const iframe = document.getElementById(iframeId);
+            if (iframe) { iframe.src = "about:blank"; }
+        }
+
         function openAppSheetModal() {
             const modal = document.getElementById("appSheetModal");
+            lazyLoadIframe("appsheet-iframe");
             modal.style.display = "flex";
             setTimeout(() => modal.classList.add("show"), 15);
         }
@@ -835,7 +863,7 @@
         function closeAppSheetModal() {
             const modal = document.getElementById("appSheetModal");
             modal.classList.remove("show");
-            setTimeout(() => { modal.style.display = "none"; }, 400);
+            setTimeout(() => { modal.style.display = "none"; unloadIframe("appsheet-iframe"); }, 400);
         }
 
         /* -------------------------------------
@@ -844,6 +872,7 @@
         
         function openCetakLamaranModal() {
             const modal = document.getElementById("cetakLamaranModal");
+            lazyLoadIframe("cetak-lamaran-iframe");
             modal.style.display = "flex";
             setTimeout(() => modal.classList.add("show"), 15);
         }
@@ -851,7 +880,21 @@
         function closeCetakLamaranModal() {
             const modal = document.getElementById("cetakLamaranModal");
             modal.classList.remove("show");
-            setTimeout(() => { modal.style.display = "none"; }, 400);
+            setTimeout(() => { modal.style.display = "none"; unloadIframe("cetak-lamaran-iframe"); }, 400);
+        }
+
+        /* TAMBAHAN FUNGSI BUKA TUTUP MODAL ID CARD */
+        function openIDCardModal() {
+            const modal = document.getElementById("idCardModal");
+            lazyLoadIframe("id-card-iframe");
+            modal.style.display = "flex";
+            setTimeout(() => modal.classList.add("show"), 15);
+        }
+
+        function closeIDCardModal() {
+            const modal = document.getElementById("idCardModal");
+            modal.classList.remove("show");
+            setTimeout(() => { modal.style.display = "none"; unloadIframe("id-card-iframe"); }, 400);
         }
 
         function openShareLinkModal() {
