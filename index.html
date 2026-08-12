@@ -131,6 +131,31 @@
 
         /* Initial Loader Screen */
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--accent-tosca); font-weight: 700; font-size: 1.1rem; }
+
+        /* Banner peringatan data contoh (dummy) - non-blocking, pengganti alert() */
+        .data-warning-banner {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            max-width: 1800px;
+            margin: 0 auto 16px auto;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(254, 226, 226, 0.95) 0%, rgba(255, 247, 237, 0.95) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.12);
+            color: #991b1b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+        .data-warning-banner i.fa-triangle-exclamation { color: var(--danger); font-size: 1.1rem; flex-shrink: 0; }
+        .data-warning-banner span#data-warning-text { flex: 1; }
+        .data-warning-retry { flex-shrink: 0; background: var(--danger); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .data-warning-retry:hover { background: #b91c1c; transform: translateY(-1px); }
+        .data-warning-close { flex-shrink: 0; cursor: pointer; font-size: 1.3rem; line-height: 1; padding: 0 4px; color: #991b1b; }
+        .data-warning-close:hover { color: var(--danger); }
         
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -341,6 +366,13 @@
             <img src="MSB Logo.png" alt="Loading">
             <div class="loading-spinner-ring"></div>
         </div>
+    </div>
+
+    <div id="data-warning-banner" class="data-warning-banner">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="data-warning-text">Gagal memuat data asli dari server. Menampilkan data contoh.</span>
+        <button class="data-warning-retry" onclick="refreshData()"><i class="fa-solid fa-rotate-right"></i> Coba Lagi</button>
+        <span class="data-warning-close" onclick="hideDataWarning()">&times;</span>
     </div>
 
     <div class="container">
@@ -594,21 +626,55 @@
             document.title = originalTitle;
         }
 
-        async function fetchData() {
+        async function fetchData(retryCount) {
+            retryCount = retryCount || 0;
             if (WEB_APP_URL.includes("MASUKAN_URL")) { generateMockData(); return; }
-            showLoader(true);
+            if (retryCount === 0) { showLoader(true); hideDataWarning(); }
             try {
                 const response = await fetch(WEB_APP_URL);
+                if (!response.ok) { throw new Error("Server merespons status " + response.status + " " + response.statusText); }
                 const result = await response.json();
-                if(result.data && result.data.length > 0) {
+                if (result.data && result.data.length > 0) {
                     globalData = result.data;
+                    hideDataWarning();
                     initializeDashboard();
-                } else { alert("Data kosong di sheet summary."); }
+                    showLoader(false);
+                } else {
+                    showLoader(false);
+                    alert("Data kosong di sheet summary.");
+                }
             } catch (error) {
-                console.error("Gagal:", error);
-                alert("Gagal memuat data asli dari server (kemungkinan koneksi lambat/terganggu). Menampilkan DATA CONTOH sementara, bukan data aktual. Klik tombol 'Perbarui Data' untuk mencoba lagi.");
-                generateMockData(); 
-            } finally { showLoader(false); }
+                console.error("Gagal mengambil data (percobaan ke-" + (retryCount + 1) + "):", error);
+                if (retryCount < 2) {
+                    // Coba lagi otomatis (maksimal 2x) sebelum menyerah ke data contoh,
+                    // untuk mengatasi kegagalan jaringan sesaat.
+                    setTimeout(() => fetchData(retryCount + 1), 1200);
+                } else {
+                    showLoader(false);
+                    showDataWarning(error);
+                    generateMockData();
+                }
+            }
+        }
+
+        function showDataWarning(error) {
+            const banner = document.getElementById('data-warning-banner');
+            const text = document.getElementById('data-warning-text');
+            if (!banner || !text) return;
+            let detail = (error && error.message) ? error.message : "koneksi ke server gagal";
+            let saran = "";
+            if (/Failed to fetch|NetworkError|TypeError/i.test(detail)) {
+                saran = " Kemungkinan penyebab: file dibuka langsung dari komputer (bukan lewat alamat web/hosting), koneksi internet terputus, atau URL Apps Script tidak aktif.";
+            } else if (/Unexpected token|JSON/i.test(detail)) {
+                saran = " Kemungkinan penyebab: deployment Apps Script belum diatur aksesnya ke \"Siapa saja (Anyone)\", sehingga server mengirim halaman login, bukan data JSON.";
+            }
+            text.textContent = "Gagal memuat data asli dari server (" + detail + "). Menampilkan DATA CONTOH, bukan data aktual." + saran;
+            banner.style.display = "flex";
+        }
+
+        function hideDataWarning() {
+            const banner = document.getElementById('data-warning-banner');
+            if (banner) banner.style.display = "none";
         }
 
         function generateMockData() {
