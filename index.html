@@ -298,6 +298,13 @@
         .name-link-clickable { color: var(--accent-tosca); cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s, transform 0.2s; }
         .name-link-clickable:hover { color: var(--accent-orange); text-decoration: underline; transform: translateX(3px); }
 
+        /* ======== BLUR DATA SENSITIF (butuh Login) ======== */
+        .blur-locked { position: relative; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 3px 8px; border-radius: 6px; background: rgba(15, 23, 42, 0.035); border: 1px dashed rgba(13, 148, 136, 0.25); }
+        .blur-locked:hover { background: rgba(13, 148, 136, 0.1); border-color: var(--accent-tosca); }
+        .blur-locked .blur-lock-icon { color: var(--accent-tosca); font-size: 0.7rem; flex-shrink: 0; }
+        .blur-locked .blur-content { filter: blur(5px); -webkit-filter: blur(5px); user-select: none; -webkit-user-select: none; pointer-events: none; white-space: nowrap; }
+        .kc-badge.blur-locked { padding: 6px 12px; }
+
         /* ======== MEDIA QUERIES UNTUK RESPONSIVITAS MOBILE & PC ======== */
         @media (max-width: 992px) {
             .summary-grid { grid-template-columns: repeat(2, 1fr); }
@@ -347,6 +354,8 @@
             th, td { border: 1px solid #cbd5e1 !important; padding: 8px !important; font-size: 9pt; white-space: normal; word-break: break-word; }
             th { background-color: #f1f5f9 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .badge { border: none !important; padding: 0 !important; background: transparent !important; color: #000 !important; }
+            .blur-locked .blur-content { filter: blur(6px) !important; -webkit-filter: blur(6px) !important; color: transparent !important; text-shadow: 0 0 8px rgba(51,65,85,0.9) !important; }
+            .blur-locked .blur-lock-icon { display: none !important; }
             @page { margin: 15mm; size: landscape; }
         }
     </style>
@@ -572,6 +581,7 @@
             </div>
 
             <div class="login-header">Human Resource System</div>
+            <p id="login-subtitle" style="color: var(--text-muted); font-size: 0.8rem; font-weight: 500; margin: -8px 0 15px 0;">Masuk untuk mengakses HR System</p>
             <div class="login-form">
                 <div class="input-group">
                     <label>Pilih Nama Pengguna</label>
@@ -611,6 +621,30 @@
         
         let isAppSheetLoggedIn = false;
         let fetchedLoginData = [];
+        let loginIntent = 'appsheet'; // 'appsheet' = tombol Buka HR System, 'unlock' = klik data yang diblur
+        let pendingCardRefreshId = null; // ID karyawan pada kartu detail yang sedang terbuka (untuk refresh setelah login)
+
+        // Kolom data penting yang harus diblur sampai user login
+        const SENSITIVE_COLUMNS = ["ID Karyawan", "Status Kerja", "No. BPJS KES", "No. BPJS TK", "Status BPJS TK", "Jumlah Izin", "Point Disiplin", "Skor Kinerja", "Catatan Evaluasi", "Penilai"];
+
+        function escapeHtml(str) {
+            return String(str === undefined || str === null ? "" : str)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Membungkus HTML nilai suatu kolom dengan efek blur + ikon gembok jika user belum login.
+        // Jika sudah login, nilai tampil apa adanya.
+        function wrapSensitive(innerHtml) {
+            if (isAppSheetLoggedIn) return innerHtml;
+            return `<span class="blur-locked" onclick="requestUnlockData()" title="Klik untuk login &amp; melihat data"><i class="fa-solid fa-lock blur-lock-icon"></i><span class="blur-content">${innerHtml}</span></span>`;
+        }
+
+        // Dipanggil saat user klik data yang diblur di tabel/kartu karyawan
+        function requestUnlockData() {
+            if (isAppSheetLoggedIn) return;
+            openLoginModal('unlock');
+        }
 
         function updateClock() {
             const now = new Date();
@@ -794,6 +828,7 @@
                 columns.forEach(col => {
                     const td = document.createElement('td');
                     let val = row[col] || "";
+                    const sensitive = SENSITIVE_COLUMNS.includes(col);
                     if (col.toLowerCase().includes("foto")) {
                         if (val && val !== "") {
                             td.innerHTML = `<img src="${val}" alt="Foto" class="profile-img" onclick="openModal(this.src)" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${row['Nama Lengkap']}&background=0d9488&color=fff';">`;
@@ -803,13 +838,17 @@
                             td.innerHTML = `<div class="profile-placeholder" style="cursor:pointer;" onclick="openModal('${avatarFallbackUrl}')">${inisial}</div>`;
                         }
                     } 
-                    else if (col === "Nama Lengkap") { td.innerHTML = `<span class="name-link-clickable" onclick="openEmployeeCard('${row['ID Karyawan']}')" title="Buka Detail Karyawan"><i class="fa-regular fa-id-card"></i> ${val}</span>`; }
+                    else if (col === "Nama Lengkap") { td.innerHTML = `<span class="name-link-clickable" onclick="openEmployeeCard('${row['ID Karyawan']}')" title="Buka Detail Karyawan"><i class="fa-regular fa-id-card"></i> ${escapeHtml(val)}</span>`; }
                     else if ((col === "Status Kerja" || col === "Status BPJS TK" || col === "Catatan Evaluasi") && val) {
                         const vLower = String(val).toLowerCase();
                         let badgeClass = "badge badge-active";
                         if(vLower.includes("tidak") || vLower.includes("cuti") || vLower.includes("resign")) { badgeClass = "badge badge-inactive"; }
-                        td.innerHTML = `<span class="${badgeClass}">${val}</span>`;
-                    } else { td.textContent = val; }
+                        let badgeHtml = `<span class="${badgeClass}">${escapeHtml(val)}</span>`;
+                        td.innerHTML = sensitive ? wrapSensitive(badgeHtml) : badgeHtml;
+                    } else {
+                        let plainHtml = escapeHtml(val);
+                        td.innerHTML = sensitive ? wrapSensitive(plainHtml) : plainHtml;
+                    }
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
@@ -856,22 +895,25 @@
 
         function openEmployeeCard(idKaryawan) {
             const emp = globalData.find(e => e["ID Karyawan"] == idKaryawan); if(!emp) return;
+            pendingCardRefreshId = idKaryawan;
             document.getElementById("kc-view-nama").innerText = emp["Nama Lengkap"] || "-";
             document.getElementById("kc-view-jabatan").innerText = emp["Jabatan"] || "-";
             document.getElementById("kc-view-departemen").innerText = emp["Departemen"] || "-";
-            document.getElementById("kc-view-id").innerText = emp["ID Karyawan"] || "-";
+            document.getElementById("kc-view-id").innerHTML = wrapSensitive(escapeHtml(emp["ID Karyawan"] || "-"));
             document.getElementById("kc-view-tgl-masuk").innerText = emp["Tanggal Masuk"] || "-";
             document.getElementById("kc-view-masa-kerja").innerText = hitungMasaKerja(emp["Tanggal Masuk"]);
-            document.getElementById("kc-view-bpjs-kes").innerText = emp["No. BPJS KES"] || "-";
-            document.getElementById("kc-view-bpjs-tk").innerText = emp["No. BPJS TK"] || "-";
-            document.getElementById("kc-view-izin").innerText = (emp["Jumlah Izin"] !== undefined && emp["Jumlah Izin"] !== "") ? emp["Jumlah Izin"] : 0;
-            document.getElementById("kc-view-disiplin").innerText = (emp["Point Disiplin"] !== undefined && emp["Point Disiplin"] !== "") ? emp["Point Disiplin"] : 0;
+            document.getElementById("kc-view-bpjs-kes").innerHTML = wrapSensitive(escapeHtml(emp["No. BPJS KES"] || "-"));
+            document.getElementById("kc-view-bpjs-tk").innerHTML = wrapSensitive(escapeHtml(emp["No. BPJS TK"] || "-"));
+            document.getElementById("kc-view-izin").innerHTML = wrapSensitive(escapeHtml((emp["Jumlah Izin"] !== undefined && emp["Jumlah Izin"] !== "") ? emp["Jumlah Izin"] : 0));
+            document.getElementById("kc-view-disiplin").innerHTML = wrapSensitive(escapeHtml((emp["Point Disiplin"] !== undefined && emp["Point Disiplin"] !== "") ? emp["Point Disiplin"] : 0));
 
             const skBadge = document.getElementById("kc-view-status-kerja"); let statusKerja = emp["Status Kerja"] || "-";
-            skBadge.innerText = statusKerja; skBadge.className = "kc-badge " + (statusKerja.toLowerCase().includes("tetap") ? "kc-badge-success" : (statusKerja.toLowerCase().includes("tidak") || statusKerja.toLowerCase().includes("resign") ? "kc-badge-danger" : "kc-badge-warning"));
+            skBadge.className = "kc-badge " + (statusKerja.toLowerCase().includes("tetap") ? "kc-badge-success" : (statusKerja.toLowerCase().includes("tidak") || statusKerja.toLowerCase().includes("resign") ? "kc-badge-danger" : "kc-badge-warning"));
+            skBadge.innerHTML = wrapSensitive(escapeHtml(statusKerja));
 
             const bjsBadge = document.getElementById("kc-view-status-bpjs-tk"); let statusBPJS = emp["Status BPJS TK"] || "-";
-            bjsBadge.innerText = statusBPJS; bjsBadge.className = "kc-badge " + (statusBPJS.toLowerCase() === "aktif" ? "kc-badge-success" : "kc-badge-danger");
+            bjsBadge.className = "kc-badge " + (statusBPJS.toLowerCase() === "aktif" ? "kc-badge-success" : "kc-badge-danger");
+            bjsBadge.innerHTML = wrapSensitive(escapeHtml(statusBPJS));
 
             const linkWa = document.getElementById("kc-link-wa"); if (emp["Whatsapp"]) { let waClean = emp["Whatsapp"].toString().replace(/[^0-9]/g, ''); if (waClean.startsWith("0")) waClean = "62" + waClean.slice(1); linkWa.href = `https://wa.me/${waClean}`; linkWa.style.display = "flex"; } else { linkWa.style.display = "none"; }
             const linkMail = document.getElementById("kc-link-mail"); if (emp["Email"]) { linkMail.href = `mailto:${emp["Email"].toString().trim()}`; linkMail.style.display = "flex"; } else { linkMail.style.display = "none"; }
@@ -883,7 +925,7 @@
             const modal = document.getElementById("employeeCardModal"); modal.style.display = "flex"; setTimeout(() => modal.classList.add("show"), 15);
         }
 
-        function closeEmployeeCard() { const modal = document.getElementById("employeeCardModal"); modal.classList.remove("show"); setTimeout(() => { modal.style.display = "none"; }, 400); }
+        function closeEmployeeCard() { const modal = document.getElementById("employeeCardModal"); modal.classList.remove("show"); setTimeout(() => { modal.style.display = "none"; }, 400); pendingCardRefreshId = null; }
 
         function triggerPageTransition(callback) {
             const overlay = document.getElementById('page-transition-overlay');
@@ -993,7 +1035,14 @@
 
         /* ------------------------------------- */
 
-        function openLoginModal() {
+        function openLoginModal(intent) {
+            loginIntent = intent || 'appsheet';
+            const subtitle = document.getElementById('login-subtitle');
+            if (subtitle) {
+                subtitle.textContent = (loginIntent === 'unlock')
+                    ? "Login diperlukan untuk melihat data karyawan yang dilindungi"
+                    : "Masuk untuk mengakses HR System";
+            }
             const modal = document.getElementById("loginModal");
             modal.style.display = "flex";
             setTimeout(() => {
@@ -1059,9 +1108,18 @@
                 closeLoginModal();
                 document.getElementById("login-password").value = ""; 
 
-                triggerPageTransition(() => {
-                    openAppSheetModal();
-                });
+                // Setelah login berhasil, buka semua data sensitif yang sebelumnya diblur
+                renderTable();
+                const cardModal = document.getElementById("employeeCardModal");
+                if (pendingCardRefreshId && cardModal && cardModal.classList.contains("show")) {
+                    openEmployeeCard(pendingCardRefreshId);
+                }
+
+                if (loginIntent === 'appsheet') {
+                    triggerPageTransition(() => {
+                        openAppSheetModal();
+                    });
+                }
             } else {
                 alert("Kata sandi / PIN yang Anda masukkan salah!");
             }
