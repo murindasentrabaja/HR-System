@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>HR ERP Console — PT Murinda Sentra Baja</title>
+<title>HRIS ERP System — PT Murinda Sentra Baja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </script>
 <style>
 /* ===================================================================
-   HR ERP CONSOLE — PT Murinda Sentra Baja
+   HRIS ERP SYSTEM — PT Murinda Sentra Baja
    Design: light liquid-glass, gradient "Gemini" palette, 3D icon badges
 =================================================================== */
 :root{
@@ -271,6 +271,17 @@ a{color:inherit;}
 .login-card .btn-primary{width:100%;padding:13px;font-size:14.5px;margin-top:4px;}
 .pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--ink-400);padding:4px;display:flex;}
 .login-foot{margin-top:22px;font-size:11.5px;color:var(--ink-400);}
+/* dropdown user login: panah kustom supaya tetap tampil saat fokus */
+#loginUsername{
+  --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23868DA6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  -webkit-appearance:none;appearance:none;cursor:pointer;padding-right:40px;
+  background:rgba(255,255,255,.75) var(--chev) no-repeat right 14px center/16px;
+}
+#loginUsername:focus{background:#fff var(--chev) no-repeat right 14px center/16px;}
+#loginUsername:disabled{cursor:progress;}
+.login-hint{font-size:12px;color:var(--ink-500);line-height:1.5;}
+.login-hint .login-hint-err{color:var(--danger);font-weight:600;word-break:break-word;}
+.login-hint .link-btn{background:none;border:none;padding:0;font-size:12px;font-weight:700;color:var(--brand-1);text-decoration:underline;}
 
 /* ================= APP SHELL ================= */
 #appShell{position:relative;z-index:1;display:flex;min-height:100vh;}
@@ -497,23 +508,23 @@ table.data-table{width:100%;border-collapse:collapse;min-width:640px;}
 .skeleton{background:linear-gradient(90deg,rgba(27,32,54,.06) 25%,rgba(27,32,54,.11) 37%,rgba(27,32,54,.06) 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:8px;}
 @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
 
-/* ================= PORTAL KARIR (IFRAME) ================= */
-#karirPane{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:18px 28px 24px;}
-.karir-bar{display:flex;align-items:center;gap:10px;}
-.karir-bar .kb-url{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--r-pill);background:rgba(255,255,255,.6);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-500);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-.karir-bar .kb-url svg{width:15px;height:15px;flex-shrink:0;color:var(--brand-1);}
-.karir-bar a.btn,.karir-state a.btn{text-decoration:none;}
-.karir-frame{position:relative;flex:1;min-height:0;border-radius:var(--r-xl);overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:var(--sh-md);}
-.karir-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;opacity:0;transition:opacity .3s;}
-.karir-frame.loaded iframe{opacity:1;}
-.karir-state{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;font-size:13px;font-weight:600;color:var(--ink-500);background:#fff;}
-.karir-frame.loaded .karir-state{display:none;}
-.karir-state .ks-slow{display:none;flex-direction:column;align-items:center;gap:10px;max-width:340px;font-weight:500;}
-.karir-frame.slow .ks-slow{display:flex;}
+/* ================= HALAMAN EMBED (IFRAME): Portal Karir, Form Application, Cetak ================= */
+#embedPane{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:18px 28px 24px;}
+.embed-bar{display:flex;align-items:center;gap:10px;}
+.embed-bar .kb-url{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--r-pill);background:rgba(255,255,255,.6);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-500);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.embed-bar .kb-url svg{width:15px;height:15px;flex-shrink:0;color:var(--brand-1);}
+.embed-bar a.btn,.embed-state a.btn{text-decoration:none;}
+.embed-frame{position:relative;flex:1;min-height:0;border-radius:var(--r-xl);overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:var(--sh-md);}
+.embed-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;opacity:0;transition:opacity .3s;}
+.embed-frame.loaded iframe{opacity:1;}
+.embed-state{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;font-size:13px;font-weight:600;color:var(--ink-500);background:#fff;}
+.embed-frame.loaded .embed-state{display:none;}
+.embed-state .ks-slow{display:none;flex-direction:column;align-items:center;gap:10px;max-width:340px;font-weight:500;}
+.embed-frame.slow .ks-slow{display:flex;}
 @media (max-width:900px){
-  #karirPane{padding:12px 12px 14px;}
-  .karir-bar{justify-content:flex-end;}
-  .karir-bar .kb-url{display:none;}
+  #embedPane{padding:12px 12px 14px;}
+  .embed-bar{justify-content:flex-end;}
+  .embed-bar .kb-url{display:none;}
 }
 
 /* ================= RESPONSIVE ================= */
@@ -619,16 +630,18 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
 <div id="loginScreen">
   <div class="login-card glass">
     <div class="login-icon" id="loginIconBadge"></div>
-    <h1>HR ERP Console</h1>
+    <h1>HRIS ERP System</h1>
     <p class="sub">PT Murinda Sentra Baja — masuk untuk mengelola data karyawan</p>
     <div class="login-error" id="loginError"></div>
     <form id="loginForm">
       <div class="field">
-        <label>Username</label>
-        <div class="input-icon-wrap"></div>
-        <div class="input-icon-wrap">
-          <input class="input" id="loginUsername" type="text" placeholder="Masukkan username" autocomplete="username" required>
-        </div>
+        <label for="loginUsername">Username</label>
+        <select class="select" id="loginUsername" required disabled>
+          <option value="">Memuat daftar user...</option>
+        </select>
+        <!-- cadangan: dipakai hanya bila daftar user gagal dimuat dari server -->
+        <input class="input hidden" id="loginUsernameText" type="text" placeholder="Masukkan username" autocomplete="username">
+        <div class="login-hint hidden" id="loginUserHint"></div>
       </div>
       <div class="field">
         <label>Password</label>
@@ -650,7 +663,7 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
     <div class="brand">
       <div class="brand-mark"></div>
       <div class="brand-text">
-        <div class="t1">HR ERP Console</div>
+        <div class="t1">HRIS ERP System</div>
         <div class="t2">PT Murinda Sentra Baja</div>
       </div>
     </div>
@@ -681,22 +694,13 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
       </div>
     </header>
     <main id="content"></main>
-    <section id="karirPane" class="hidden">
-      <div class="karir-bar">
-        <div class="kb-url" id="karirUrlLabel"></div>
-        <button class="btn btn-outline" id="karirReloadBtn" type="button"></button>
-        <a class="btn btn-outline" id="karirOpenLink" target="_blank" rel="noopener noreferrer"></a>
+    <section id="embedPane" class="hidden">
+      <div class="embed-bar">
+        <div class="kb-url" id="embedUrlLabel"></div>
+        <button class="btn btn-outline" id="embedReloadBtn" type="button"></button>
+        <a class="btn btn-outline" id="embedOpenLink" target="_blank" rel="noopener noreferrer"></a>
       </div>
-      <div class="karir-frame" id="karirFrame">
-        <div class="karir-state" id="karirState">
-          <div class="spinner"></div>
-          <p>Memuat Portal Karir...</p>
-          <div class="ks-slow">
-            <span>Portal belum tampil? Koneksi mungkin lambat, atau situs menolak dibuka di dalam bingkai.</span>
-            <a class="btn btn-primary" id="karirOpenLink2" target="_blank" rel="noopener noreferrer">Buka di tab baru</a>
-          </div>
-        </div>
-      </div>
+      <!-- tiap halaman embed dibuat sebagai .embed-frame (berisi iframe) oleh JS saat pertama dibuka -->
     </section>
   </div>
 </div>
@@ -749,7 +753,7 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
    CONFIG — GANTI dengan URL Web App hasil Deploy Google Apps Script
    (Deploy > New deployment > Web app > salin URL yang berakhiran /exec)
 ===================================================================== */
-const API_URL = "https://script.google.com/macros/s/AKfycbxg6yUNMqZe-I_-C955mu-JXcv0fVXdDz4BfoH0ileP_kqPbq2YJg0bBX-Rr6XJPEqp/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwnq463tQDiDjuzr6Mp3qwuleAnEmbW_l2pk3GXPqXb6AxOrki0Qy7suhidUcqo95FU/exec";
 
 /* Logo resmi PT Murinda Sentra Baja — dimuat dari file gambar "MSB Logo.png"
    yang disimpan satu folder dengan file HTML ini (bukan lagi base64 embed).
@@ -1057,7 +1061,7 @@ document.getElementById('pwToggle').addEventListener('click', () => {
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const username = document.getElementById('loginUsername').value.trim();
+  const username = getLoginUsername();
   const password = document.getElementById('loginPassword').value;
   const errBox = document.getElementById('loginError');
   errBox.classList.remove('show');
@@ -1079,6 +1083,52 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     btn.disabled = false; btn.textContent = 'Masuk';
   }
 });
+
+/* =====================================================================
+   DAFTAR USER LOGIN — username dipilih lewat dropdown, pengguna cukup
+   mengetik password. Daftar diambil dari backend (aksi getLoginUsers,
+   hanya berisi username, tanpa password). Bila gagal dimuat (mis. Code.gs
+   belum diperbarui), tampil kolom ketik manual agar login tetap bisa.
+===================================================================== */
+function setLoginUserMode(mode, hintHtml){
+  const sel = document.getElementById('loginUsername');
+  const txt = document.getElementById('loginUsernameText');
+  const hint = document.getElementById('loginUserHint');
+  const useText = mode === 'text';
+  sel.classList.toggle('hidden', useText); sel.required = !useText;
+  txt.classList.toggle('hidden', !useText); txt.required = useText;
+  hint.classList.toggle('hidden', !hintHtml);
+  hint.innerHTML = hintHtml || '';
+}
+function getLoginUsername(){
+  const txt = document.getElementById('loginUsernameText');
+  if(!txt.classList.contains('hidden')) return txt.value.trim();
+  return document.getElementById('loginUsername').value.trim();
+}
+async function loadLoginUsers(){
+  const sel = document.getElementById('loginUsername');
+  sel.disabled = true;
+  sel.innerHTML = '<option value="">Memuat daftar user...</option>';
+  setLoginUserMode('select');
+  try{
+    const users = await apiCall('getLoginUsers');
+    if(!Array.isArray(users) || !users.length) throw new Error('Daftar user kosong');
+    sel.innerHTML = '<option value="">\u2014 Pilih user \u2014</option>' +
+      users.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
+    sel.disabled = false;
+  } catch(err){
+    sel.innerHTML = '<option value="">Daftar user belum termuat</option>';
+    setLoginUserMode('text',
+      'Daftar user belum bisa dimuat, ketik username secara manual. ' +
+      '<button type="button" class="link-btn" id="loginUserRetry">Muat ulang daftar</button>' +
+      '<br><span class="login-hint-err">Penyebab: ' + escapeHtml(String((err && err.message) || err)) + '</span>');
+    document.getElementById('loginUserRetry').addEventListener('click', loadLoginUsers);
+  }
+}
+document.getElementById('loginUsername').addEventListener('change', (e) => {
+  if(e.target.value) document.getElementById('loginPassword').focus();
+});
+loadLoginUsers();
 
 async function bootApp(){
   document.getElementById('loginScreen').style.display = 'none';
@@ -1126,15 +1176,16 @@ function renderBootError(message){
 }
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  currentUser = null; schema = null; recordsCache = {}; refOptionsCache = {}; setKarirPane(false);
+  currentUser = null; schema = null; recordsCache = {}; refOptionsCache = {}; setEmbedPane(false); resetEmbeds();
   document.getElementById('appShell').classList.add('hidden');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('loginForm').reset();
+  loadLoginUsers();
 });
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
   if(currentView === 'dashboard') navigateTo('dashboard', null, true);
-  else if(currentView === 'karir') navigateTo('karir', null, true);
+  else if(isEmbedView(currentView)) navigateTo(currentView, null, true);
   else navigateTo('module', currentSheet, true);
 });
 
@@ -1174,11 +1225,14 @@ function buildNav(){
   dashGroup.innerHTML = navItemHtml('dashboard', 'Dashboard', 'grid', 'grad-brand', true);
   nav.appendChild(dashGroup);
 
-  // Portal Karir — situs rekrutmen yang dibuka di dalam iframe
-  const karirGroup = document.createElement('div');
-  karirGroup.className = 'nav-group';
-  karirGroup.innerHTML = navItemHtml('karir', 'Portal Karir', 'globe', 'grad-fuchsia');
-  nav.appendChild(karirGroup);
+  // Halaman embed (Portal Karir, Form Application, Cetak Form Application) — dibuka di dalam iframe
+  const embedGroup = document.createElement('div');
+  embedGroup.className = 'nav-group';
+  embedGroup.innerHTML = Object.keys(EMBED_VIEWS).map(k => {
+    const v = EMBED_VIEWS[k];
+    return navItemHtml(k, v.navLabel, v.icon, v.color);
+  }).join('');
+  nav.appendChild(embedGroup);
 
   // Setiap kategori besar (mis. "Master Data") dibuat bisa dilipat/dibuka
   // lewat header dengan panah dropdown. Grup pertama dibuka otomatis.
@@ -1222,7 +1276,7 @@ function buildNav(){
     el.addEventListener('click', () => {
       const sheet = el.getAttribute('data-sheet');
       if(sheet === 'dashboard') navigateTo('dashboard');
-      else if(sheet === 'karir') navigateTo('karir');
+      else if(isEmbedView(sheet)) navigateTo(sheet);
       else navigateTo('module', sheet);
       // pastikan grup induknya tetap terbuka setelah dipilih
       const parentGroup = el.closest('.nav-collapsible');
@@ -1254,47 +1308,103 @@ function markActiveNav(sheet){
    ROUTER
 ===================================================================== */
 /* =====================================================================
-   PORTAL KARIR — situs rekrutmen dibuka di dalam iframe (tetap di aplikasi ini).
-   Iframe dibuat sekali saat pertama dibuka lalu dipertahankan, sehingga isian
-   formulir tidak hilang ketika pengguna berpindah menu dan kembali.
+   HALAMAN EMBED (IFRAME) — Portal Karir, Form Application, Cetak Form Application.
+   Setiap halaman dibuka di dalam aplikasi ini (inframe). Iframe dibuat sekali
+   saat pertama dibuka lalu dipertahankan, sehingga isian formulir tidak hilang
+   ketika pengguna berpindah menu dan kembali. Tombol "Muat ulang" membuatnya
+   ulang dari awal.
+   Untuk menambah halaman baru cukup tambahkan satu entri di EMBED_VIEWS.
 ===================================================================== */
-const KARIR_URL = 'https://murindasentrabaja.github.io/MSB-Connect/';
-let karirFrameEl = null;
-let karirSlowTimer = null;
+const APPLICATION_URL = 'https://script.google.com/macros/s/AKfycbzqSSfpVDSuoVtqaewDE93cWR0daDsiuy9PaW6WMUYMGrlT5lxN9nmLr0a6A-WvZK1gog/exec';
+const EMBED_VIEWS = {
+  karir: {
+    url: 'https://murindasentrabaja.github.io/MSB-Connect/',
+    navLabel: 'Portal Karir', icon: 'globe', color: 'grad-fuchsia',
+    title: 'Portal Karir', subtitle: 'Portal rekrutmen PT Murinda Sentra Baja',
+    frameTitle: 'Portal Karir PT Murinda Sentra Baja', loadingText: 'Memuat Portal Karir...'
+  },
+  formApp: {
+    url: APPLICATION_URL,
+    navLabel: 'Form Application', icon: 'fileSign', color: 'grad-violet',
+    title: 'Form Application', subtitle: 'Formulir aplikasi PT Murinda Sentra Baja',
+    frameTitle: 'Form Application PT Murinda Sentra Baja', loadingText: 'Memuat Form Application...'
+  },
+  formCetak: {
+    url: APPLICATION_URL + '?page=cetak',
+    navLabel: 'Cetak Form Application', icon: 'printer', color: 'grad-teal',
+    title: 'Cetak Form Application', subtitle: 'Cetak formulir aplikasi PT Murinda Sentra Baja',
+    frameTitle: 'Cetak Form Application PT Murinda Sentra Baja', loadingText: 'Memuat Cetak Form Application...'
+  }
+};
+const embedFrames = {};   // key -> { wrap, iframe, timer }
+let activeEmbed = null;
 
-function setKarirPane(show){
-  document.getElementById('karirPane').classList.toggle('hidden', !show);
+function isEmbedView(view){ return Object.prototype.hasOwnProperty.call(EMBED_VIEWS, view); }
+
+function setEmbedPane(show){
+  document.getElementById('embedPane').classList.toggle('hidden', !show);
   document.getElementById('content').classList.toggle('hidden', show);
 }
-function openKarirPortal(forceReload){
-  if(karirFrameEl && !forceReload) return;
-  const wrap = document.getElementById('karirFrame');
-  clearTimeout(karirSlowTimer);
-  if(karirFrameEl) karirFrameEl.remove();
-  wrap.classList.remove('loaded', 'slow');
-  karirFrameEl = document.createElement('iframe');
-  karirFrameEl.title = 'Portal Karir PT Murinda Sentra Baja';
-  karirFrameEl.setAttribute('allow', 'clipboard-write; fullscreen; geolocation');
-  karirFrameEl.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-  karirFrameEl.addEventListener('load', () => {
-    clearTimeout(karirSlowTimer);
+function destroyEmbed(key){
+  const entry = embedFrames[key];
+  if(!entry) return;
+  clearTimeout(entry.timer);
+  entry.wrap.remove();
+  delete embedFrames[key];
+}
+function resetEmbeds(){
+  Object.keys(embedFrames).forEach(destroyEmbed);
+  activeEmbed = null;
+}
+function createEmbedFrame(key){
+  const cfg = EMBED_VIEWS[key];
+  const wrap = document.createElement('div');
+  wrap.className = 'embed-frame';
+  wrap.innerHTML = `
+    <div class="embed-state">
+      <div class="spinner"></div>
+      <p>${escapeHtml(cfg.loadingText)}</p>
+      <div class="ks-slow">
+        <span>Halaman belum tampil? Koneksi mungkin lambat, atau situs menolak dibuka di dalam bingkai.</span>
+        <a class="btn btn-primary" target="_blank" rel="noopener noreferrer">Buka di tab baru</a>
+      </div>
+    </div>`;
+  wrap.querySelector('.ks-slow a').href = cfg.url;
+
+  const iframe = document.createElement('iframe');
+  iframe.title = cfg.frameTitle;
+  iframe.setAttribute('allow', 'clipboard-write; fullscreen; geolocation');
+  iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+  const entry = { wrap, iframe, timer: null };
+  iframe.addEventListener('load', () => {
+    clearTimeout(entry.timer);
     wrap.classList.remove('slow');
     wrap.classList.add('loaded');
   });
   // jika belum termuat dalam 12 detik, tawarkan buka di tab baru
-  karirSlowTimer = setTimeout(() => wrap.classList.add('slow'), 12000);
-  karirFrameEl.src = KARIR_URL;
-  wrap.appendChild(karirFrameEl);
+  entry.timer = setTimeout(() => wrap.classList.add('slow'), 12000);
+  iframe.src = cfg.url;
+  wrap.appendChild(iframe);
+  document.getElementById('embedPane').appendChild(wrap);
+  embedFrames[key] = entry;
 }
-(function initKarirPane(){
-  document.getElementById('karirUrlLabel').innerHTML = svgIcon('globe') + '<span>' + KARIR_URL + '</span>';
-  const reloadBtn = document.getElementById('karirReloadBtn');
+function openEmbed(key, forceReload){
+  const cfg = EMBED_VIEWS[key];
+  activeEmbed = key;
+  // sembunyikan halaman embed lain (iframe-nya tetap hidup di latar)
+  Object.keys(embedFrames).forEach(k => embedFrames[k].wrap.classList.toggle('hidden', k !== key));
+  if(forceReload) destroyEmbed(key);
+  if(!embedFrames[key]) createEmbedFrame(key);
+  embedFrames[key].wrap.classList.remove('hidden');
+  // bilah atas: alamat + tombol buka di tab baru mengikuti halaman aktif
+  document.getElementById('embedUrlLabel').innerHTML = svgIcon('globe') + '<span>' + escapeHtml(cfg.url) + '</span>';
+  document.getElementById('embedOpenLink').href = cfg.url;
+}
+(function initEmbedBar(){
+  const reloadBtn = document.getElementById('embedReloadBtn');
   reloadBtn.innerHTML = svgIcon('refresh') + 'Muat ulang';
-  reloadBtn.addEventListener('click', () => openKarirPortal(true));
-  const openLink = document.getElementById('karirOpenLink');
-  openLink.innerHTML = svgIcon('external') + 'Buka di tab baru';
-  openLink.href = KARIR_URL;
-  document.getElementById('karirOpenLink2').href = KARIR_URL;
+  reloadBtn.addEventListener('click', () => { if(activeEmbed) openEmbed(activeEmbed, true); });
+  document.getElementById('embedOpenLink').innerHTML = svgIcon('external') + 'Buka di tab baru';
 })();
 
 async function navigateTo(view, sheet, forceReload){
@@ -1303,12 +1413,12 @@ async function navigateTo(view, sheet, forceReload){
   searchTerm = '';
   currentPage = 1;
   filterPanelOpen = false;
-  setKarirPane(view === 'karir');
-  if(view === 'karir'){
-    markActiveNav('karir');
-    document.getElementById('pageTitle').textContent = 'Portal Karir';
-    document.getElementById('pageSubtitle').textContent = 'Portal rekrutmen PT Murinda Sentra Baja';
-    openKarirPortal(forceReload);
+  setEmbedPane(isEmbedView(view));
+  if(isEmbedView(view)){
+    markActiveNav(view);
+    document.getElementById('pageTitle').textContent = EMBED_VIEWS[view].title;
+    document.getElementById('pageSubtitle').textContent = EMBED_VIEWS[view].subtitle;
+    openEmbed(view, forceReload);
     return;
   }
   if(view === 'dashboard'){
