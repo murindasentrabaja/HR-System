@@ -511,6 +511,17 @@ table.data-table{width:100%;border-collapse:collapse;min-width:640px;}
 /* ================= HALAMAN EMBED (IFRAME): Portal Karir, Form Application, Cetak ================= */
 #embedPane{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:18px 28px 24px;}
 .embed-bar{display:flex;align-items:center;gap:10px;}
+.embed-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+#applicationQrOverlay{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(20,23,38,.52);backdrop-filter:blur(6px);}
+#applicationQrOverlay.show{display:flex;}
+.application-qr-card{position:relative;width:100%;max-width:380px;padding:30px 26px 26px;border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(20,23,38,.28);text-align:center;}
+.application-qr-card h3{margin:0 34px 8px;font-size:19px;color:var(--ink-900);}
+.application-qr-card p{margin:0 auto 18px;max-width:280px;font-size:13px;line-height:1.55;color:var(--ink-500);}
+.application-qr-close{position:absolute;top:12px;right:12px;font-size:22px;}
+.application-qr-image-wrap{width:260px;height:260px;max-width:100%;margin:0 auto 18px;padding:10px;border:1px solid var(--line);border-radius:18px;background:#fff;display:flex;align-items:center;justify-content:center;}
+.application-qr-image-wrap img{display:block;width:100%;height:100%;object-fit:contain;}
+.application-qr-card .btn{width:100%;justify-content:center;}
+
 .embed-bar .kb-url{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--r-pill);background:rgba(255,255,255,.6);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-500);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .embed-bar .kb-url svg{width:15px;height:15px;flex-shrink:0;color:var(--brand-1);}
 .embed-bar a.btn,.embed-state a.btn{text-decoration:none;}
@@ -611,6 +622,21 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
 .d-sec summary{cursor:pointer}.d-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .d-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
 .df .dl{font-size:11.5px;color:var(--ink-400);font-weight:600;margin-bottom:3px}.df .dv{font-size:13.5px;font-weight:600;word-break:break-word}
+/* Tampilan nilai JSON pada Form Application */
+.df.df-json{grid-column:1/-1;min-width:0}
+.df.df-json .dv{font-weight:400}
+.json-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:7px}
+.json-record{min-width:0;border:1px solid var(--line);border-radius:11px;background:#fff;padding:11px 12px}
+.json-record-title{font-size:12.5px;font-weight:800;color:var(--ink-700);margin-bottom:8px;overflow-wrap:anywhere}
+.json-pairs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 13px}
+.json-pair{min-width:0}
+.json-key{font-size:10.5px;color:var(--ink-400);font-weight:700;margin-bottom:2px}
+.json-value{font-size:12px;color:var(--ink-700);font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere}
+.json-count{font-size:11px;color:var(--ink-400);font-weight:700;margin-bottom:2px}
+.json-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.json-chip{display:inline-flex;padding:5px 9px;border-radius:7px;background:#F1F4FA;color:var(--ink-700);font-size:11.5px;font-weight:600}
+.json-empty{font-size:12px;color:var(--ink-400);font-style:italic}
+.json-invalid{display:inline-flex;padding:5px 8px;border-radius:7px;background:#FFF4E5;color:#946200;font-size:11px;font-weight:700}
 .bar{height:7px;border-radius:9px;background:rgba(27,32,54,.08);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand-1),var(--brand-2));border-radius:9px}
 .rel-row{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
 .rel-row:last-child{border-bottom:none}.rel-row:hover{background:rgba(78,107,246,.06)}.rel-row svg{width:15px;height:15px;margin-left:auto;color:var(--ink-300)}.rel-row small{color:var(--ink-400);margin-left:auto}
@@ -697,8 +723,12 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
     <section id="embedPane" class="hidden">
       <div class="embed-bar">
         <div class="kb-url" id="embedUrlLabel"></div>
-        <button class="btn btn-outline" id="embedReloadBtn" type="button"></button>
-        <a class="btn btn-outline" id="embedOpenLink" target="_blank" rel="noopener noreferrer"></a>
+        <div class="embed-actions">
+          <button class="btn btn-outline hidden" id="embedQrBtn" type="button">QR Code</button>
+          <button class="btn btn-outline hidden" id="embedCopyBtn" type="button">Copy Link</button>
+          <button class="btn btn-outline" id="embedReloadBtn" type="button"></button>
+          <a class="btn btn-outline" id="embedOpenLink" target="_blank" rel="noopener noreferrer"></a>
+        </div>
       </div>
       <!-- tiap halaman embed dibuat sebagai .embed-frame (berisi iframe) oleh JS saat pertama dibuka -->
     </section>
@@ -736,6 +766,18 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
       <button class="btn btn-outline" id="confirmCancelBtn">Batal</button>
       <button class="btn btn-danger ripple-host" id="confirmOkBtn">Ya, Hapus</button>
     </div>
+  </div>
+</div>
+
+<!-- ===================== QR SHARE FORM APPLICATION ===================== -->
+<div id="applicationQrOverlay" aria-hidden="true">
+  <div class="application-qr-card" role="dialog" aria-modal="true" aria-labelledby="applicationQrTitle">
+    <button class="icon-btn application-qr-close" id="applicationQrClose" type="button" aria-label="Tutup">&times;</button>
+    <div class="icon-badge lg grad-violet" style="margin:0 auto 14px;">QR</div>
+    <h3 id="applicationQrTitle">Bagikan Form Application</h3>
+    <p>Pindai QR Code dengan kamera ponsel untuk membuka formulir lamaran kerja.</p>
+    <div class="application-qr-image-wrap"><img id="applicationQrImage" alt="QR Code Form Application"></div>
+    <button class="btn btn-primary" id="applicationQrCopyBtn" type="button">Copy Link</button>
   </div>
 </div>
 
@@ -838,7 +880,7 @@ const SHEET_ICON = {
   TRX_Attendance:'calCheck', TRX_Overtime:'clock', TRX_LeaveRequest:'calX',
   TRX_PayrollRun:'banknote', TRX_PayrollDetail:'receipt', TRX_Loan:'handCoins', TRX_LoanInstallment:'card',
   TRX_PerformanceReview:'star', TRX_Training:'bookOpen', TRX_TrainingParticipant:'userCheck',
-  TRX_Recruitment:'briefcase', TRX_Candidate:'userPlus',
+  TRX_Recruitment:'briefcase', TRX_Candidate:'userPlus', TRX_Application:'fileSign',
   TRX_Contract:'fileSign', TRX_Disciplinary:'alertTri', TRX_EmployeeDocument:'folder',
   TRX_AssetAssignment:'laptop', TRX_Resignation:'logout',
   SYS_User:'shield'
@@ -1318,19 +1360,19 @@ function markActiveNav(sheet){
 const APPLICATION_URL = 'https://script.google.com/macros/s/AKfycbzqSSfpVDSuoVtqaewDE93cWR0daDsiuy9PaW6WMUYMGrlT5lxN9nmLr0a6A-WvZK1gog/exec';
 const EMBED_VIEWS = {
   karir: {
-    url: 'https://murindasentrabaja.github.io/MSB-Connect/',
+    url: 'https://murindasentrabaja.github.io/MSB-Connect/', showDirectLink: true,
     navLabel: 'Portal Karir', icon: 'globe', color: 'grad-fuchsia',
     title: 'Portal Karir', subtitle: 'Portal rekrutmen PT Murinda Sentra Baja',
     frameTitle: 'Portal Karir PT Murinda Sentra Baja', loadingText: 'Memuat Portal Karir...'
   },
   formApp: {
-    url: APPLICATION_URL,
+    url: APPLICATION_URL, showDirectLink: false,
     navLabel: 'Form Application', icon: 'fileSign', color: 'grad-violet',
     title: 'Form Application', subtitle: 'Formulir aplikasi PT Murinda Sentra Baja',
     frameTitle: 'Form Application PT Murinda Sentra Baja', loadingText: 'Memuat Form Application...'
   },
   formCetak: {
-    url: APPLICATION_URL + '?page=cetak',
+    url: APPLICATION_URL + '?page=cetak', showDirectLink: false,
     navLabel: 'Cetak Form Application', icon: 'printer', color: 'grad-teal',
     title: 'Cetak Form Application', subtitle: 'Cetak formulir aplikasi PT Murinda Sentra Baja',
     frameTitle: 'Cetak Form Application PT Murinda Sentra Baja', loadingText: 'Memuat Cetak Form Application...'
@@ -1369,7 +1411,15 @@ function createEmbedFrame(key){
         <a class="btn btn-primary" target="_blank" rel="noopener noreferrer">Buka di tab baru</a>
       </div>
     </div>`;
-  wrap.querySelector('.ks-slow a').href = cfg.url;
+  if(cfg.showDirectLink){
+    wrap.querySelector('.ks-slow a').href = cfg.url;
+  } else {
+    const fallbackText = wrap.querySelector('.ks-slow span');
+    fallbackText.textContent = key === 'formApp'
+      ? 'Gunakan tombol QR Code atau Copy Link untuk membuka Form Application.'
+      : 'Halaman cetak belum dapat dimuat di dalam aplikasi.';
+    wrap.querySelector('.ks-slow a').remove();
+  }
 
   const iframe = document.createElement('iframe');
   iframe.title = cfg.frameTitle;
@@ -1396,15 +1446,70 @@ function openEmbed(key, forceReload){
   if(forceReload) destroyEmbed(key);
   if(!embedFrames[key]) createEmbedFrame(key);
   embedFrames[key].wrap.classList.remove('hidden');
-  // bilah atas: alamat + tombol buka di tab baru mengikuti halaman aktif
-  document.getElementById('embedUrlLabel').innerHTML = svgIcon('globe') + '<span>' + escapeHtml(cfg.url) + '</span>';
-  document.getElementById('embedOpenLink').href = cfg.url;
+  // URL langsung hanya ditampilkan untuk Portal Karir.
+  const directLinkVisible = cfg.showDirectLink === true;
+  const urlLabel = document.getElementById('embedUrlLabel');
+  const openLink = document.getElementById('embedOpenLink');
+  urlLabel.classList.toggle('hidden', !directLinkVisible);
+  openLink.classList.toggle('hidden', !directLinkVisible);
+  if(directLinkVisible){
+    urlLabel.innerHTML = svgIcon('globe') + '<span>' + escapeHtml(cfg.url) + '</span>';
+    openLink.href = cfg.url;
+  } else {
+    urlLabel.textContent = '';
+    openLink.removeAttribute('href');
+  }
+  const shareVisible = key === 'formApp';
+  document.getElementById('embedQrBtn').classList.toggle('hidden', !shareVisible);
+  document.getElementById('embedCopyBtn').classList.toggle('hidden', !shareVisible);
+}
+
+function openApplicationQr(){
+  const qr = document.getElementById('applicationQrImage');
+  qr.src = 'https://quickchart.io/qr?text=' + encodeURIComponent(APPLICATION_URL) + '&size=280&margin=2';
+  document.getElementById('applicationQrOverlay').classList.add('show');
+  document.getElementById('applicationQrOverlay').setAttribute('aria-hidden', 'false');
+}
+function closeApplicationQr(){
+  document.getElementById('applicationQrOverlay').classList.remove('show');
+  document.getElementById('applicationQrOverlay').setAttribute('aria-hidden', 'true');
+}
+async function copyApplicationLink(){
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(APPLICATION_URL);
+    } else {
+      const temp = document.createElement('textarea');
+      temp.value = APPLICATION_URL;
+      temp.setAttribute('readonly', '');
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.select();
+      const copied = document.execCommand('copy');
+      temp.remove();
+      if(!copied) throw new Error('Browser tidak mengizinkan penyalinan otomatis.');
+    }
+    showToast('Link Form Application berhasil disalin.', 'success');
+  } catch(err){
+    showToast('Link tidak dapat disalin. Coba gunakan QR Code.', 'error');
+  }
 }
 (function initEmbedBar(){
   const reloadBtn = document.getElementById('embedReloadBtn');
   reloadBtn.innerHTML = svgIcon('refresh') + 'Muat ulang';
   reloadBtn.addEventListener('click', () => { if(activeEmbed) openEmbed(activeEmbed, true); });
   document.getElementById('embedOpenLink').innerHTML = svgIcon('external') + 'Buka di tab baru';
+  document.getElementById('embedQrBtn').addEventListener('click', openApplicationQr);
+  document.getElementById('embedCopyBtn').addEventListener('click', copyApplicationLink);
+  document.getElementById('applicationQrCopyBtn').addEventListener('click', copyApplicationLink);
+  document.getElementById('applicationQrClose').addEventListener('click', closeApplicationQr);
+  document.getElementById('applicationQrOverlay').addEventListener('click', e => {
+    if(e.target.id === 'applicationQrOverlay') closeApplicationQr();
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') closeApplicationQr();
+  });
 })();
 
 async function navigateTo(view, sheet, forceReload){
@@ -2110,7 +2215,7 @@ attachTilt(document.getElementById('loginIconBadge'));
    Menimpa fungsi lama (deklarasi terakhir menang) tanpa mengubah API/GAS.
 ===================================================================== */
 const LABEL_REFS=new Set(['MST_Department','MST_Position','MST_JobLevel']); // di database tersimpan sebagai NAMA, bukan ID
-const READONLY=new Set();
+const READONLY=new Set(['TRX_Application']);
 const has=v=>v!==''&&v!==null&&v!==undefined;
 const refVal=(s,o)=>LABEL_REFS.has(s)?o.label:o.id;
 const isOn=v=>v===true||/^(true|aktif|ya)$/i.test(String(v).trim());
@@ -2138,6 +2243,7 @@ function guessType(k,v){
 /* Jika header asli sheet berbeda dari skema Code.gs, ikuti header asli database (mode baca saja) */
 function syncColumns(sheet){
  const t=tablesBySheet[sheet],recs=recordsCache[sheet]||[];
+ if(t&&t.readOnly)READONLY.add(sheet);
  if(!t||t._synced||!recs.length)return;
  t._synced=1;
  const keys=Object.keys(recs[0]).filter(k=>k&&k!=='__row'&&k!=='undefined');
@@ -2169,13 +2275,80 @@ function errCard(m){
 /* tabel: tampilkan hanya kolom yang benar-benar terisi di database */
 function pickDisplayColumns(t){
  const recs=recordsCache[t.sheet]||[];
- const ok=t.columns.filter(c=>!['file','textarea','link'].includes(c.type)&&(!recs.length||recs.some(r=>has(r[c.name]))));
+ // Kolom JSON panjang tidak dimasukkan ke tabel ringkas; ditampilkan rapi di detail.
+ const ok=t.columns.filter(c=>!['file','textarea','link'].includes(c.type)
+  &&(!recs.length||recs.some(r=>has(r[c.name])))
+  &&!recs.some(r=>isJsonLikeText(r[c.name])));
  const lab=ok.find(c=>c.name===t.labelField);
  return (lab?[lab]:[]).concat(ok.filter(c=>c!==lab&&(c.name!==t.keyField||!lab))).slice(0,7);
+}
+function parseJsonPayload(value){
+ if(typeof value!=='string')return null;
+ const raw=value.trim();
+ if(!(raw.startsWith('[')||raw.startsWith('{')))return null;
+ try{const parsed=JSON.parse(raw);return parsed&&typeof parsed==='object'?parsed:null;}catch(e){return null;}
+}
+function isJsonLikeText(value){
+ return typeof value==='string' && /^[\s]*[\[{]/.test(value);
+}
+function jsonFieldLabel(key){
+ const known={nama:'Nama',name:'Nama',hubungan:'Hubungan',umur:'Umur',pekerjaan:'Pekerjaan',pendidikan:'Pendidikan',keterangan:'Keterangan',lp:'L/P',institusi:'Institusi',lokasi:'Lokasi',jurusan:'Jurusan',periode:'Periode',jenjang:'Jenjang',tahun:'Tahun',alamat:'Alamat'};
+ const k=String(key);
+ return known[k.toLowerCase()]||k.replace(/([a-z])([A-Z])/g,'$1 $2').replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+function jsonScalar(value){
+ if(value===null||value===undefined||value==='')return '-';
+ if(typeof value==='boolean')return value?'Ya':'Tidak';
+ if(typeof value==='object')return '';
+ return String(value);
+}
+function jsonHasValue(value){
+ if(value===null||value===undefined||value==='')return false;
+ if(Array.isArray(value))return value.some(jsonHasValue);
+ if(value&&typeof value==='object')return Object.values(value).some(jsonHasValue);
+ return true;
+}
+function renderJsonNode(value,depth){
+ depth=depth||0;
+ if(depth>3)return '<span class="json-empty">Data bertingkat</span>';
+ if(Array.isArray(value)){
+  if(!value.length)return '<span class="json-empty">Tidak ada data</span>';
+  if(value.every(x=>x&&typeof x==='object'&&!Array.isArray(x))){
+   const meaningful=value.filter(jsonHasValue);
+   if(!meaningful.length)return '<span class="json-empty">Tidak ada data</span>';
+   return `<div class="json-list"><div class="json-count" style="grid-column:1/-1">${meaningful.length} data</div>${meaningful.map((x,i)=>renderJsonRecord(x,i,depth+1)).join('')}</div>`;
+  }
+  const meaningful=value.filter(jsonHasValue);
+  if(!meaningful.length)return '<span class="json-empty">Tidak ada data</span>';
+  return `<div class="json-chips">${meaningful.map(x=>`<span class="json-chip">${escapeHtml(jsonScalar(x))}</span>`).join('')}</div>`;
+ }
+ if(value&&typeof value==='object'){
+  const entries=Object.entries(value).filter(([k,v])=>jsonHasValue(v));
+  if(!entries.length)return '<span class="json-empty">Tidak ada data</span>';
+  return `<div class="json-pairs">${entries.map(([k,v])=>`<div class="json-pair"><div class="json-key">${escapeHtml(jsonFieldLabel(k))}</div><div class="json-value">${v&&typeof v==='object'?renderJsonNode(v,depth+1):escapeHtml(jsonScalar(v))}</div></div>`).join('')}</div>`;
+ }
+ return `<span class="json-value">${escapeHtml(jsonScalar(value))}</span>`;
+}
+function renderJsonRecord(obj,index,depth){
+ const titleKey=['nama','name','institusi','judul','perusahaan'].find(k=>has(obj[k]));
+ const title=titleKey?obj[titleKey]:'Data '+(index+1);
+ const entries=Object.entries(obj).filter(([k,v])=>jsonHasValue(v)&&k!==titleKey);
+ const body=entries.length?`<div class="json-pairs">${entries.map(([k,v])=>`<div class="json-pair"><div class="json-key">${escapeHtml(jsonFieldLabel(k))}</div><div class="json-value">${v&&typeof v==='object'?renderJsonNode(v,depth+1):escapeHtml(jsonScalar(v))}</div></div>`).join('')}</div>`:'<span class="json-empty">Tidak ada rincian tambahan</span>';
+ return `<div class="json-record"><div class="json-record-title">${escapeHtml(String(title))}</div>${body}</div>`;
+}
+function renderJsonPayload(value){
+ const parsed=parseJsonPayload(value);
+ if(parsed===null)return '<span class="json-invalid">Format data JSON tidak valid</span>';
+ return renderJsonNode(parsed,0);
 }
 function cellValue(col,val){
  if(!has(val))return '<span style="color:var(--ink-300);">-</span>';
  const sv=String(val),chip=(s,k)=>`<span class="chip ${k||'gray'}">${escapeHtml(s)}</span>`;
+ if(isJsonLikeText(sv)){
+  const parsed=parseJsonPayload(sv);
+  const n=Array.isArray(parsed)?parsed.length:(parsed&&typeof parsed==='object'?Object.keys(parsed).length:0);
+  return parsed!==null?chip(Array.isArray(parsed)?`${n} data`:'Data terstruktur','gray'):chip('JSON tidak valid','warn');
+ }
  if(col.type==='checkbox'||/^(aktif|nonaktif|ya|tidak)$/i.test(sv))return chip(typeof val==='boolean'?(val?'Aktif':'Nonaktif'):sv,isOn(val)?'ok':'');
  if(col.type==='currency')return formatCurrency(val);
  if(col.type==='time')return fmtTime(val);
@@ -2243,7 +2416,11 @@ function openDetail(sheet,rec){
  const t=tablesBySheet[sheet];syncColumns(sheet);detailCtx={sheet,rec};
  const cols=t.columns,isEmp=sheet==='MST_Employee',lab=has(rec[t.labelField])?rec[t.labelField]:rec[t.keyField];
  const fl=cols.filter(c=>has(rec[c.name])),em=cols.filter(c=>!has(rec[c.name])&&c.name!==t.keyField),pct=cols.length?Math.round(fl.length/cols.length*100):0;
- const fld=c=>`<div class="df"><div class="dl">${escapeHtml(c.name.replace(/_/g,' '))}</div><div class="dv">${c.type==='textarea'?`<span style="white-space:pre-wrap">${escapeHtml(rec[c.name])}</span>`:cellValue(c,rec[c.name])}</div></div>`;
+ const fld=c=>{
+  const val=rec[c.name],json=isJsonLikeText(val);
+  const shown=json?renderJsonPayload(val):(c.type==='textarea'?`<span style="white-space:pre-wrap">${escapeHtml(val)}</span>`:cellValue(c,val));
+  return `<div class="df ${json?'df-json':''}"><div class="dl">${escapeHtml(c.name.replace(/_/g,' '))}</div><div class="dv">${shown}</div></div>`;
+ };
  const used=new Set();
  let secs=(FLD_GROUPS[sheet]||[['Informasi',cols.map(c=>c.name)]]).map(([g,names])=>{const cs=names.map(n=>fl.find(c=>c.name===n)).filter(Boolean);cs.forEach(c=>used.add(c.name));return cs.length?`<div class="d-sec"><h4>${g}</h4><div class="d-grid">${cs.map(fld).join('')}</div></div>`:'';}).join('');
  const rest=fl.filter(c=>!used.has(c.name)&&c.name!==t.keyField);
@@ -2284,7 +2461,10 @@ async function openRef(sheet,val){
   rec?openDetail(sheet,rec):showToast('Data rujukan tidak ditemukan.','error');}catch(err){showToast(err.message,'error');}
 }
 function printDetail(sheet,rec){
- const t=tablesBySheet[sheet],rows=t.columns.filter(c=>has(rec[c.name])).map(c=>`<tr><th style="width:32%">${escapeHtml(c.name.replace(/_/g,' '))}</th><td>${escapeHtml(plain(rec[c.name],c))}</td></tr>`).join('');
+ const t=tablesBySheet[sheet],rows=t.columns.filter(c=>has(rec[c.name])).map(c=>{
+  const v=rec[c.name],shown=isJsonLikeText(v)?renderJsonPayload(v):escapeHtml(plain(v,c));
+  return `<tr><th style="width:32%">${escapeHtml(c.name.replace(/_/g,' '))}</th><td>${shown}</td></tr>`;
+ }).join('');
  document.getElementById('printArea').innerHTML=`<h2>${escapeHtml(t.namaTabel)} — PT Murinda Sentra Baja</h2><div class="print-meta">Dicetak ${new Date().toLocaleString('id-ID')}</div><table><tbody>${rows}</tbody></table>`;window.print();
 }
 document.addEventListener('click',e=>{
