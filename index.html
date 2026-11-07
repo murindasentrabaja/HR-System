@@ -508,7 +508,7 @@ table.data-table{width:100%;border-collapse:collapse;min-width:640px;}
 .skeleton{background:linear-gradient(90deg,rgba(27,32,54,.06) 25%,rgba(27,32,54,.11) 37%,rgba(27,32,54,.06) 63%);background-size:400% 100%;animation:shimmer 1.4s ease infinite;border-radius:8px;}
 @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
 
-/* ================= HALAMAN EMBED (IFRAME): Portal Karir, Form Application, Cetak ================= */
+/* ================= HALAMAN EMBED (IFRAME): Portal Karir, Applicant Form ================= */
 #embedPane{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;padding:18px 28px 24px;}
 .embed-bar{display:flex;align-items:center;gap:10px;}
 .embed-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
@@ -769,14 +769,14 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
   </div>
 </div>
 
-<!-- ===================== QR SHARE FORM APPLICATION ===================== -->
+<!-- ===================== QR SHARE APPLICANT FORM ===================== -->
 <div id="applicationQrOverlay" aria-hidden="true">
   <div class="application-qr-card" role="dialog" aria-modal="true" aria-labelledby="applicationQrTitle">
     <button class="icon-btn application-qr-close" id="applicationQrClose" type="button" aria-label="Tutup">&times;</button>
     <div class="icon-badge lg grad-violet" style="margin:0 auto 14px;">QR</div>
-    <h3 id="applicationQrTitle">Bagikan Form Application</h3>
+    <h3 id="applicationQrTitle">Bagikan Applicant Form</h3>
     <p>Pindai QR Code dengan kamera ponsel untuk membuka formulir lamaran kerja.</p>
-    <div class="application-qr-image-wrap"><img id="applicationQrImage" alt="QR Code Form Application"></div>
+    <div class="application-qr-image-wrap"><img id="applicationQrImage" alt="QR Code Applicant Form"></div>
     <button class="btn btn-primary" id="applicationQrCopyBtn" type="button">Copy Link</button>
   </div>
 </div>
@@ -1267,7 +1267,7 @@ function buildNav(){
   dashGroup.innerHTML = navItemHtml('dashboard', 'Dashboard', 'grid', 'grad-brand', true);
   nav.appendChild(dashGroup);
 
-  // Halaman embed (Portal Karir, Form Application, Cetak Form Application) — dibuka di dalam iframe
+  // Halaman embed (Portal Karir, Applicant Form) — dibuka di dalam iframe
   const embedGroup = document.createElement('div');
   embedGroup.className = 'nav-group';
   embedGroup.innerHTML = Object.keys(EMBED_VIEWS).map(k => {
@@ -1350,14 +1350,14 @@ function markActiveNav(sheet){
    ROUTER
 ===================================================================== */
 /* =====================================================================
-   HALAMAN EMBED (IFRAME) — Portal Karir, Form Application, Cetak Form Application.
+   HALAMAN EMBED (IFRAME) — Portal Karir, Applicant Form.
    Setiap halaman dibuka di dalam aplikasi ini (inframe). Iframe dibuat sekali
    saat pertama dibuka lalu dipertahankan, sehingga isian formulir tidak hilang
    ketika pengguna berpindah menu dan kembali. Tombol "Muat ulang" membuatnya
    ulang dari awal.
    Untuk menambah halaman baru cukup tambahkan satu entri di EMBED_VIEWS.
 ===================================================================== */
-const APPLICATION_URL = 'https://script.google.com/macros/s/AKfycbzqSSfpVDSuoVtqaewDE93cWR0daDsiuy9PaW6WMUYMGrlT5lxN9nmLr0a6A-WvZK1gog/exec';
+const APPLICANT_FORM_URL = 'https://murindasentrabaja.github.io/Applicant-Form/';
 const EMBED_VIEWS = {
   karir: {
     url: 'https://murindasentrabaja.github.io/MSB-Connect/', showDirectLink: true,
@@ -1365,17 +1365,11 @@ const EMBED_VIEWS = {
     title: 'Portal Karir', subtitle: 'Portal rekrutmen PT Murinda Sentra Baja',
     frameTitle: 'Portal Karir PT Murinda Sentra Baja', loadingText: 'Memuat Portal Karir...'
   },
-  formApp: {
-    url: APPLICATION_URL, showDirectLink: false,
-    navLabel: 'Form Application', icon: 'fileSign', color: 'grad-violet',
-    title: 'Form Application', subtitle: 'Formulir aplikasi PT Murinda Sentra Baja',
-    frameTitle: 'Form Application PT Murinda Sentra Baja', loadingText: 'Memuat Form Application...'
-  },
-  formCetak: {
-    url: APPLICATION_URL + '?page=cetak', showDirectLink: false,
-    navLabel: 'Cetak Form Application', icon: 'printer', color: 'grad-teal',
-    title: 'Cetak Form Application', subtitle: 'Cetak formulir aplikasi PT Murinda Sentra Baja',
-    frameTitle: 'Cetak Form Application PT Murinda Sentra Baja', loadingText: 'Memuat Cetak Form Application...'
+  applicantForm: {
+    url: APPLICANT_FORM_URL, showDirectLink: true,
+    navLabel: 'Applicant Form', icon: 'fileSign', color: 'grad-violet',
+    title: 'Applicant Form', subtitle: 'Formulir pelamar PT Murinda Sentra Baja',
+    frameTitle: 'Applicant Form PT Murinda Sentra Baja', loadingText: 'Memuat Applicant Form...'
   }
 };
 const embedFrames = {};   // key -> { wrap, iframe, timer }
@@ -1415,9 +1409,7 @@ function createEmbedFrame(key){
     wrap.querySelector('.ks-slow a').href = cfg.url;
   } else {
     const fallbackText = wrap.querySelector('.ks-slow span');
-    fallbackText.textContent = key === 'formApp'
-      ? 'Gunakan tombol QR Code atau Copy Link untuk membuka Form Application.'
-      : 'Halaman cetak belum dapat dimuat di dalam aplikasi.';
+    fallbackText.textContent = 'Halaman belum dapat dimuat di dalam aplikasi.';
     wrap.querySelector('.ks-slow a').remove();
   }
 
@@ -1459,14 +1451,14 @@ function openEmbed(key, forceReload){
     urlLabel.textContent = '';
     openLink.removeAttribute('href');
   }
-  const shareVisible = key === 'formApp';
+  const shareVisible = key === 'applicantForm';
   document.getElementById('embedQrBtn').classList.toggle('hidden', !shareVisible);
   document.getElementById('embedCopyBtn').classList.toggle('hidden', !shareVisible);
 }
 
 function openApplicationQr(){
   const qr = document.getElementById('applicationQrImage');
-  qr.src = 'https://quickchart.io/qr?text=' + encodeURIComponent(APPLICATION_URL) + '&size=280&margin=2';
+  qr.src = 'https://quickchart.io/qr?text=' + encodeURIComponent(APPLICANT_FORM_URL) + '&size=280&margin=2';
   document.getElementById('applicationQrOverlay').classList.add('show');
   document.getElementById('applicationQrOverlay').setAttribute('aria-hidden', 'false');
 }
@@ -1477,10 +1469,10 @@ function closeApplicationQr(){
 async function copyApplicationLink(){
   try{
     if(navigator.clipboard && window.isSecureContext){
-      await navigator.clipboard.writeText(APPLICATION_URL);
+      await navigator.clipboard.writeText(APPLICANT_FORM_URL);
     } else {
       const temp = document.createElement('textarea');
-      temp.value = APPLICATION_URL;
+      temp.value = APPLICANT_FORM_URL;
       temp.setAttribute('readonly', '');
       temp.style.position = 'fixed';
       temp.style.opacity = '0';
@@ -1490,7 +1482,7 @@ async function copyApplicationLink(){
       temp.remove();
       if(!copied) throw new Error('Browser tidak mengizinkan penyalinan otomatis.');
     }
-    showToast('Link Form Application berhasil disalin.', 'success');
+    showToast('Link Applicant Form berhasil disalin.', 'success');
   } catch(err){
     showToast('Link tidak dapat disalin. Coba gunakan QR Code.', 'error');
   }
