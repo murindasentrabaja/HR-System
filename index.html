@@ -2504,47 +2504,6 @@ document.getElementById('logoutBtn').addEventListener('click',()=>{closeDetail()
 .ot-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ot-sum{margin:2px 0 14px;padding:12px 14px;border-radius:12px;background:#fff;border:1.5px dashed #C9D0EA;font-size:13px;color:var(--ink-700)}
 .ot-foot{display:flex;gap:10px;padding:16px 22px;border-top:1px solid var(--line)}.ot-foot .btn{flex:1}
-/* ===== Sistem laporan cetak — dipakai semua report ===== */
-#printArea .rp{font-family:'Inter',Arial,sans-serif;color:#1A2036;font-size:11px;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-#printArea .rp-page{break-after:page;page-break-after:always}
-#printArea .rp-page:last-child{break-after:auto;page-break-after:auto}
-#printArea .rp-head{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-bottom:14px;border-bottom:1px solid #D5DAEA;position:relative}
-#printArea .rp-head::after{content:"";position:absolute;left:0;bottom:-1px;width:96px;height:3px;background:#C8202F}
-#printArea .rp-head img{height:44px;display:block}
-#printArea .rp-ttl{text-align:right}
-#printArea .rp-ttl h1{font:700 17px/1.2 'Plus Jakarta Sans',Arial,sans-serif;color:#1B2A5E;margin:0;letter-spacing:-.01em}
-#printArea .rp-ttl p{margin:3px 0 0;color:#6B7390;font-size:10.5px}
-#printArea .rp-meta{display:grid;grid-template-columns:repeat(var(--cols,3),1fr);margin:16px 0 14px;border:1px solid #E1E5F2;border-radius:8px;overflow:hidden}
-#printArea .rp-meta div{padding:9px 14px;border-right:1px solid #E1E5F2;min-width:0}
-#printArea .rp-meta div:last-child{border-right:0}
-#printArea .rp-meta span{display:block;font-size:9.5px;color:#7A819C;margin-bottom:2px}
-#printArea .rp-meta b{font-size:12px;font-weight:600;color:#1A2036;overflow-wrap:anywhere}
-#printArea table.rp-tbl{width:100%;border-collapse:collapse;table-layout:fixed}
-#printArea .rp-tbl thead{display:table-header-group}
-#printArea .rp-tbl th{text-align:left;font-weight:600;font-size:10px;color:#fff;background:#1B2A5E;padding:8px 9px;border:0}
-#printArea .rp-tbl th:first-child{border-radius:6px 0 0 0}
-#printArea .rp-tbl th:last-child{border-radius:0 6px 0 0}
-#printArea .rp-tbl td{padding:6px 9px;border:0;border-bottom:1px solid #E6E9F4;font-size:11px;vertical-align:top;overflow-wrap:anywhere}
-#printArea .rp-tbl tbody tr:nth-child(even) td{background:#F6F8FC}
-#printArea .rp-tbl tr{break-inside:avoid}
-#printArea .rp-nw{white-space:nowrap}
-#printArea .rp-sm th,#printArea .rp-sm td{font-size:9.5px;padding:6px 7px}
-#printArea .rp-note{margin:12px 0 0;padding:9px 12px;border-left:3px solid #C8202F;background:#F6F8FC;font-size:11px}
-#printArea .rp-signs{display:flex;justify-content:flex-end;gap:32px;margin-top:28px;break-inside:avoid}
-#printArea .rp-sg{width:200px;text-align:center}
-#printArea .rp-sg .t{font-size:10px;color:#6B7390;margin-bottom:4px}
-#printArea .rp-sg .box{height:70px;display:flex;align-items:center;justify-content:center;border-bottom:1.5px solid #1B2A5E}
-#printArea .rp-sg .box img{max-height:62px;max-width:170px}
-#printArea .rp-sg b{display:block;margin-top:6px;font-size:11.5px}
-#printArea .rp-sg small{display:block;color:#7A819C;font-size:9.5px}
-#printArea .rp-foot{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:8px;border-top:1px solid #E1E5F2;color:#8A91AB;font-size:9px}
-#printArea .rp-foot span:first-child{min-width:0;overflow-wrap:anywhere}
-#printArea .rp-kv{display:grid;grid-template-columns:1fr 1fr;gap:0 32px}
-#printArea .rp-kv div{padding:8px 0;border-bottom:1px solid #E6E9F4;break-inside:avoid;min-width:0}
-#printArea .rp-kv .w{grid-column:1/-1}
-#printArea .rp-kv span{display:block;font-size:9.5px;color:#7A819C;margin-bottom:1px}
-#printArea .rp-kv b{font-weight:600;font-size:11.5px;overflow-wrap:anywhere}
-@media print{body>*:not(#printArea){display:none!important}#printArea{display:block!important;position:static!important;width:auto!important;margin:0!important;padding:0!important}}
 </style>
 <script>
 /* ===== V3 — struktur sheet asli + cetak lembur + form berlogo ===== */
@@ -2621,11 +2580,61 @@ const rpVal=(c,v)=>{if(!has(v))return '–';
  if(v===true)return 'Ya';if(v===false)return 'Tidak';
  if(c.type==='datetime'&&isIso(v))return formatDateTime(v);
  return plain(v,c);};
+const RP_CSS=`*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0;padding:0;background:#fff}
+/* ===== Sistem laporan cetak — dipakai semua report ===== */
+.rp{font-family:'Inter',Arial,sans-serif;color:#1A2036;font-size:11px;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rp-page{break-after:page;page-break-after:always}
+.rp-page:last-child{break-after:auto;page-break-after:auto}
+.rp-head{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-bottom:14px;border-bottom:1px solid #D5DAEA;position:relative}
+.rp-head::after{content:"";position:absolute;left:0;bottom:-1px;width:96px;height:3px;background:#C8202F}
+.rp-head img{height:44px;display:block}
+.rp-ttl{text-align:right}
+.rp-ttl h1{font:700 17px/1.2 'Plus Jakarta Sans',Arial,sans-serif;color:#1B2A5E;margin:0;letter-spacing:-.01em}
+.rp-ttl p{margin:3px 0 0;color:#6B7390;font-size:10.5px}
+.rp-meta{display:grid;grid-template-columns:repeat(var(--cols,3),1fr);margin:16px 0 14px;border:1px solid #E1E5F2;border-radius:8px;overflow:hidden}
+.rp-meta div{padding:9px 14px;border-right:1px solid #E1E5F2;min-width:0}
+.rp-meta div:last-child{border-right:0}
+.rp-meta span{display:block;font-size:9.5px;color:#7A819C;margin-bottom:2px}
+.rp-meta b{font-size:12px;font-weight:600;color:#1A2036;overflow-wrap:anywhere}
+table.rp-tbl{width:100%;border-collapse:collapse;table-layout:fixed}
+.rp-tbl thead{display:table-header-group}
+.rp-tbl th{text-align:left;font-weight:600;font-size:10px;color:#fff;background:#1B2A5E;padding:8px 9px;border:0}
+.rp-tbl th:first-child{border-radius:6px 0 0 0}
+.rp-tbl th:last-child{border-radius:0 6px 0 0}
+.rp-tbl td{padding:6px 9px;border:0;border-bottom:1px solid #E6E9F4;font-size:11px;vertical-align:top;overflow-wrap:anywhere}
+.rp-tbl tr{break-inside:avoid}
+.rp-nw{white-space:nowrap}
+.rp-sm th,.rp-sm td{font-size:9.5px;padding:6px 7px}
+.rp-note{margin:12px 0 0;padding:9px 12px;border-left:3px solid #C8202F;font-size:11px}
+.rp-signs{display:flex;justify-content:flex-end;gap:32px;margin-top:28px;break-inside:avoid}
+.rp-sg{width:200px;text-align:center}
+.rp-sg .t{font-size:10px;color:#6B7390;margin-bottom:4px}
+.rp-sg .box{height:70px;display:flex;align-items:center;justify-content:center;border-bottom:1.5px solid #1B2A5E}
+.rp-sg .box img{max-height:62px;max-width:170px}
+.rp-sg b{display:block;margin-top:6px;font-size:11.5px}
+.rp-sg small{display:block;color:#7A819C;font-size:9.5px}
+.rp-foot{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:8px;border-top:1px solid #E1E5F2;color:#8A91AB;font-size:9px}
+.rp-foot span:first-child{min-width:0;overflow-wrap:anywhere}
+.rp-kv{display:grid;grid-template-columns:1fr 1fr;gap:0 32px}
+.rp-kv div{padding:8px 0;border-bottom:1px solid #E6E9F4;break-inside:avoid;min-width:0}
+.rp-kv .w{grid-column:1/-1}
+.rp-kv span{display:block;font-size:9.5px;color:#7A819C;margin-bottom:1px}
+.rp-kv b{font-weight:600;font-size:11.5px;overflow-wrap:anywhere}
+`;
+/* Cetak lewat dokumen terpisah (iframe): halaman putih bersih, tidak terpengaruh CSS/latar aplikasi */
 function rptPrint(html,o){o=o||{};
- let s=document.getElementById('rpPage');if(!s){s=document.createElement('style');s.id='rpPage';document.head.appendChild(s);}
- s.textContent=`@page{size:A4 ${o.landscape?'landscape':'portrait'};margin:14mm 14mm 16mm;${o.pages?'@bottom-right{content:"Halaman " counter(page) " dari " counter(pages);font:9px Arial,sans-serif;color:#8A91AB}':''}}`;
- const a=document.getElementById('printArea');document.body.appendChild(a);a.innerHTML=`<div class="rp">${html}</div>`;
- Promise.all([...a.querySelectorAll('img')].map(i=>i.complete?1:new Promise(r=>{i.addEventListener('load',r);i.addEventListener('error',r);}))).then(()=>setTimeout(()=>window.print(),120));
+ const base=document.baseURI,abs=new URL(LOGO,base).href;
+ html=html.split('src="'+LOGO+'"').join('src="'+abs+'"');
+ const fonts=[...document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis"]')].map(l=>l.outerHTML).join('');
+ const page=`@page{size:A4 ${o.landscape?'landscape':'portrait'};margin:14mm 14mm 16mm;${o.pages?'@bottom-right{content:"Halaman " counter(page) " dari " counter(pages);font:9px Arial,sans-serif;color:#8A91AB}':''}}`;
+ const old=document.getElementById('rpFrame');if(old)old.remove();
+ const f=document.createElement('iframe');f.id='rpFrame';f.setAttribute('aria-hidden','true');
+ f.style.cssText='position:fixed;left:-10000px;top:0;width:210mm;height:297mm;border:0';
+ f.onload=()=>{const w=f.contentWindow,ready=w.document.fonts?Promise.race([w.document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve();
+  ready.then(()=>setTimeout(()=>{w.focus();w.print();},120));
+  w.onafterprint=()=>setTimeout(()=>f.remove(),500);};
+ f.srcdoc=`<!doctype html><html lang="id"><head><meta charset="utf-8"><base href="${base}"><title>${esc(o.title||'Laporan')}</title>${fonts}<style>${RP_CSS}${page}</style></head><body><div class="rp">${html}</div></body></html>`;
+ document.body.appendChild(f);
 }
 function otSheet(id,rows){
  const d=otDate(id),pick=k=>{const r=rows.find(x=>has(x[k]));return r?r[k]:'';};
@@ -2644,19 +2653,19 @@ function otSheet(id,rows){
 function otPrint(){
  const g=groups(otRows());if(!g.length){showToast('Tidak ada data lembur yang cocok dengan filter.','error');return;}
  document.getElementById('otModal').classList.remove('show');
- rptPrint(g.map(x=>otSheet(x[0],x[1])).join(''));
+ rptPrint(g.map(x=>otSheet(x[0],x[1])).join(''),{title:'Form Lembur '+(g.length===1?g[0][0]:g.length+' form')});
 }
 /* laporan daftar data (tombol Cetak di tiap modul) */
 window.printModule=function(sheet){
  const t=tablesBySheet[sheet],recs=getFilteredRecords(sheet);
  if(!recs.length){showToast('Belum ada data untuk dicetak.','error');return;}
- const cols=t.columns.filter(c=>!['file','textarea','link'].includes(c.type)&&!/_JSON$|TTD|Link|Foto/i.test(c.name)).slice(0,9),wide=cols.length>6;
+ const cols=t.columns.filter(c=>!['file','textarea','link'].includes(c.type)&&!/_JSON$|TTD|Link|Foto/i.test(c.name)).filter(c=>recs.some(r=>has(r[c.name]))).slice(0,9),wide=cols.length>6;
  const nf=Object.keys(filterState[sheet]||{}).length,flt=[searchTerm?'Pencarian "'+searchTerm+'"':'',nf?nf+' filter aktif':''].filter(Boolean).join(' · ')||'Semua data';
  rptPrint(`<section class="rp-page">${rpHead(t.namaTabel,'Laporan data · '+(t.kategoriBesar||''))}
  ${rpMeta([['Modul',t.namaTabel],['Jumlah data',recs.length+' baris'],['Filter',flt]])}
  <table class="rp-tbl${wide?' rp-sm':''}"><colgroup><col style="width:4.5%"></colgroup><thead><tr><th>No.</th>${cols.map(c=>`<th>${esc(c.name.replace(/_/g,' '))}</th>`).join('')}</tr></thead>
  <tbody>${recs.map((r,i)=>`<tr><td>${i+1}</td>${cols.map(c=>`<td>${esc(rpVal(c,r[c.name]))}</td>`).join('')}</tr>`).join('')}</tbody></table>
- ${rpFoot(esc(t.namaTabel))}</section>`,{landscape:wide,pages:true});
+ ${rpFoot(esc(t.namaTabel))}</section>`,{landscape:wide,pages:true,title:'Laporan '+t.namaTabel});
 };
 /* lembar detail satu data (tombol Cetak di halaman detail) */
 window.printDetail=function(sheet,rec){
@@ -2664,7 +2673,7 @@ window.printDetail=function(sheet,rec){
  const item=c=>{const v=rec[c.name],j=isJsonLikeText(v);return `<div class="${j||c.type==='textarea'||String(v).length>70?'w':''}"><span>${esc(c.name.replace(/_/g,' '))}</span><b>${j?renderJsonPayload(v):esc(rpVal(c,v))}</b></div>`;};
  rptPrint(`<section class="rp-page">${rpHead(t.namaTabel,'Lembar data')}
  ${rpMeta([['Data',lab],['Modul',t.namaTabel],['Kelengkapan',fl.length+' dari '+(t.columns.length-1)+' kolom terisi']])}
- <div class="rp-kv">${fl.map(item).join('')}</div>${rpFoot(esc(t.namaTabel))}</section>`,{pages:true});
+ <div class="rp-kv">${fl.map(item).join('')}</div>${rpFoot(esc(t.namaTabel))}</section>`,{pages:true,title:t.namaTabel+' - '+lab});
 };
 
 const _dm=window.drawModule;
