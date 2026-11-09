@@ -645,6 +645,20 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
 .chart-grid.cg2{grid-template-columns:1fr 1fr}
 @media(max-width:1000px){.chart-grid.cg2{grid-template-columns:1fr}}
 @media(max-width:600px){.d-grid{grid-template-columns:1fr}.fillrow{grid-template-columns:110px 1fr 38px}}
+/* embed: tanpa label link, tombol rata kanan */
+.embed-bar{justify-content:flex-end}
+/* detail: tombol kembali + dropdown data terkait */
+.d-hero .d-back{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:6px 12px 6px 8px;border-radius:99px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.18);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;max-width:calc(100% - 52px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.d-hero .d-back svg{width:14px;height:14px;flex-shrink:0}
+.d-hero .d-back:hover{background:rgba(255,255,255,.3)}
+.rel-acc{padding:0;overflow:hidden}
+.rel-acc>summary{display:flex;align-items:center;gap:8px;padding:13px 17px;list-style:none}
+.rel-acc>summary::-webkit-details-marker{display:none}
+.rel-acc>summary:after{content:'';margin-left:auto;width:7px;height:7px;border-right:2px solid var(--ink-300);border-bottom:2px solid var(--ink-300);transform:rotate(45deg);transition:transform .2s}
+.rel-acc[open]>summary:after{transform:rotate(-135deg)}
+.rel-acc .rel-n{background:rgba(78,107,246,.12);color:var(--brand-1);border-radius:99px;padding:1px 8px;font-size:11px}
+.rel-acc.empty>summary{opacity:.55}
+.rel-acc .rel-body{padding:0 17px 10px}
 </style>
 </head>
 <body>
@@ -727,7 +741,6 @@ tr.clk{cursor:pointer}tr.clk:focus-visible{outline:2px solid var(--brand-1);outl
           <button class="btn btn-outline hidden" id="embedQrBtn" type="button">QR Code</button>
           <button class="btn btn-outline hidden" id="embedCopyBtn" type="button">Copy Link</button>
           <button class="btn btn-outline" id="embedReloadBtn" type="button"></button>
-          <a class="btn btn-outline" id="embedOpenLink" target="_blank" rel="noopener noreferrer"></a>
         </div>
       </div>
       <!-- tiap halaman embed dibuat sebagai .embed-frame (berisi iframe) oleh JS saat pertama dibuka -->
@@ -877,6 +890,7 @@ const SHEET_ICON = {
   MST_Employee:'users', MST_Department:'building', MST_Position:'briefcase', MST_JobLevel:'layers',
   MST_Branch:'mapPin', MST_Shift:'clock', MST_LeaveType:'calStar', MST_SalaryComponent:'wallet',
   MST_HolidayCalendar:'calStar',
+  TRX_Keterlambatan:'clock',
   TRX_Attendance:'calCheck', TRX_Overtime:'clock', TRX_LeaveRequest:'calX',
   TRX_PayrollRun:'banknote', TRX_PayrollDetail:'receipt', TRX_Loan:'handCoins', TRX_LoanInstallment:'card',
   TRX_PerformanceReview:'star', TRX_Training:'bookOpen', TRX_TrainingParticipant:'userCheck',
@@ -889,6 +903,8 @@ function iconForSheet(sheet){ return SHEET_ICON[sheet] || 'database'; }
 function colorForCategory(cat){ return CATEGORY_COLOR[cat] || 'grad-blue'; }
 
 /* Field-field yang dihitung otomatis oleh backend (tampil read-only) */
+// Sheet yang field wajibnya tidak memblokir penyimpanan (data boleh dilengkapi bertahap)
+const LOOSE_REQ = new Set(['MST_Employee']);
 const AUTO_FIELDS = new Set([
   'MST_Employee.Usia','MST_Employee.Masa_Kerja_Tahun',
   'TRX_Attendance.Menit_Keterlambatan','TRX_Attendance.Total_Jam_Kerja',
@@ -1360,16 +1376,22 @@ function markActiveNav(sheet){
 const APPLICANT_FORM_URL = 'https://murindasentrabaja.github.io/Applicant-Form/';
 const EMBED_VIEWS = {
   karir: {
-    url: 'https://murindasentrabaja.github.io/MSB-Connect/', showDirectLink: true,
+    url: 'https://murindasentrabaja.github.io/MSB-Connect/',
     navLabel: 'Portal Karir', icon: 'globe', color: 'grad-fuchsia',
     title: 'Portal Karir', subtitle: 'Portal rekrutmen PT Murinda Sentra Baja',
     frameTitle: 'Portal Karir PT Murinda Sentra Baja', loadingText: 'Memuat Portal Karir...'
   },
   applicantForm: {
-    url: APPLICANT_FORM_URL, showDirectLink: true,
+    url: APPLICANT_FORM_URL,
     navLabel: 'Applicant Form', icon: 'fileSign', color: 'grad-violet',
     title: 'Applicant Form', subtitle: 'Formulir pelamar PT Murinda Sentra Baja',
     frameTitle: 'Applicant Form PT Murinda Sentra Baja', loadingText: 'Memuat Applicant Form...'
+  },
+  idCard: {
+    url: 'https://murindasentrabaja.github.io/ID-Card-Karyawan/',
+    navLabel: 'ID Karyawan', icon: 'card', color: 'grad-teal',
+    title: 'ID Karyawan', subtitle: 'ID Card digital karyawan PT Murinda Sentra Baja',
+    frameTitle: 'ID Card Karyawan PT Murinda Sentra Baja', loadingText: 'Memuat ID Karyawan...'
   }
 };
 const embedFrames = {};   // key -> { wrap, iframe, timer }
@@ -1401,22 +1423,16 @@ function createEmbedFrame(key){
       <div class="spinner"></div>
       <p>${escapeHtml(cfg.loadingText)}</p>
       <div class="ks-slow">
-        <span>Halaman belum tampil? Koneksi mungkin lambat, atau situs menolak dibuka di dalam bingkai.</span>
-        <a class="btn btn-primary" target="_blank" rel="noopener noreferrer">Buka di tab baru</a>
+        <span>Halaman belum tampil? Koneksi mungkin lambat. Coba klik tombol Muat ulang di atas.</span>
       </div>
     </div>`;
-  if(cfg.showDirectLink){
-    wrap.querySelector('.ks-slow a').href = cfg.url;
-  } else {
-    const fallbackText = wrap.querySelector('.ks-slow span');
-    fallbackText.textContent = 'Halaman belum dapat dimuat di dalam aplikasi.';
-    wrap.querySelector('.ks-slow a').remove();
-  }
 
   const iframe = document.createElement('iframe');
   iframe.title = cfg.frameTitle;
   iframe.setAttribute('allow', 'clipboard-write; fullscreen; geolocation');
   iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+  // tanpa allow-popups: link di dalam halaman tidak bisa membuka tab/jendela baru
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-modals allow-downloads');
   const entry = { wrap, iframe, timer: null };
   iframe.addEventListener('load', () => {
     clearTimeout(entry.timer);
@@ -1438,19 +1454,9 @@ function openEmbed(key, forceReload){
   if(forceReload) destroyEmbed(key);
   if(!embedFrames[key]) createEmbedFrame(key);
   embedFrames[key].wrap.classList.remove('hidden');
-  // URL langsung hanya ditampilkan untuk Portal Karir.
-  const directLinkVisible = cfg.showDirectLink === true;
+  // Link langsung tidak ditampilkan; halaman hanya dibuka di dalam iframe.
   const urlLabel = document.getElementById('embedUrlLabel');
-  const openLink = document.getElementById('embedOpenLink');
-  urlLabel.classList.toggle('hidden', !directLinkVisible);
-  openLink.classList.toggle('hidden', !directLinkVisible);
-  if(directLinkVisible){
-    urlLabel.innerHTML = svgIcon('globe') + '<span>' + escapeHtml(cfg.url) + '</span>';
-    openLink.href = cfg.url;
-  } else {
-    urlLabel.textContent = '';
-    openLink.removeAttribute('href');
-  }
+  urlLabel.classList.add('hidden'); urlLabel.textContent = '';
   const shareVisible = key === 'applicantForm';
   document.getElementById('embedQrBtn').classList.toggle('hidden', !shareVisible);
   document.getElementById('embedCopyBtn').classList.toggle('hidden', !shareVisible);
@@ -1491,7 +1497,6 @@ async function copyApplicationLink(){
   const reloadBtn = document.getElementById('embedReloadBtn');
   reloadBtn.innerHTML = svgIcon('refresh') + 'Muat ulang';
   reloadBtn.addEventListener('click', () => { if(activeEmbed) openEmbed(activeEmbed, true); });
-  document.getElementById('embedOpenLink').innerHTML = svgIcon('external') + 'Buka di tab baru';
   document.getElementById('embedQrBtn').addEventListener('click', openApplicationQr);
   document.getElementById('embedCopyBtn').addEventListener('click', copyApplicationLink);
   document.getElementById('applicationQrCopyBtn').addEventListener('click', copyApplicationLink);
@@ -2069,7 +2074,7 @@ async function openDrawer(sheet, record){
     } else {
       inner = `<input type="text" class="input" data-field="${c.name}" value="${escapeHtml(curVal)}" placeholder="Tulis ${labelText.toLowerCase()}...">`;
     }
-    wrap.innerHTML = `<label>${labelText} ${c.required ? '<span class="req">*</span>' : ''} ${isAuto ? '<span class="badge-auto">Otomatis</span>' : ''}</label>${inner}`;
+    wrap.innerHTML = `<label>${labelText} ${(c.required && !LOOSE_REQ.has(sheet)) ? '<span class="req">*</span>' : ''} ${isAuto ? '<span class="badge-auto">Otomatis</span>' : ''}</label>${inner}`;
     body.appendChild(wrap);
   }
 
@@ -2080,7 +2085,7 @@ async function openDrawer(sheet, record){
     try{
       const opts = await getRefOptionsCached(refSheet);
       const curVal = record ? record[field] : '';
-      sel.innerHTML = '<option value="">— Pilih —</option>' + opts.map(o => `<option value="${escapeHtml(refVal(refSheet,o))}" ${(curVal===refVal(refSheet,o)||curVal===o.id)?'selected':''}>${escapeHtml(o.label)}</option>`).join('');
+      sel.innerHTML = refSelectHtml(refSheet, opts, curVal);
     } catch(e){ sel.innerHTML = '<option value="">Gagal memuat opsi</option>'; }
   });
 
@@ -2123,6 +2128,7 @@ document.getElementById('drawerSaveBtn').addEventListener('click', async () => {
   const body = document.getElementById('drawerBody');
   const record = editingRecord ? Object.assign({}, editingRecord) : {};
   const missing = [];
+  let anyFilled = false;
 
   for(const c of t.columns){
     if(c.name === '__row' || c.name === t.keyField) continue;
@@ -2139,9 +2145,12 @@ document.getElementById('drawerSaveBtn').addEventListener('click', async () => {
     const el = body.querySelector(`[data-field="${c.name}"]`);
     if(!el) continue;
     const val = el.value;
-    if(c.required && !val){ missing.push(c.name.replace(/_/g,' ')); el.style.borderColor = 'var(--danger)'; }
+    if(c.required && !LOOSE_REQ.has(sheet) && !val){ missing.push(c.name.replace(/_/g,' ')); el.style.borderColor = 'var(--danger)'; }
     record[c.name] = val;
+    if(val) anyFilled = true;
   }
+
+  if(LOOSE_REQ.has(sheet) && !anyFilled){ showToast('Isi minimal satu data sebelum menyimpan.', 'error'); return; }
 
   if(missing.length){
     showToast('Lengkapi field wajib: ' + missing.slice(0,3).join(', ') + (missing.length>3?'...':''), 'error');
@@ -2218,6 +2227,7 @@ const stCls=v=>/akan berakhir|menunggu|proses|draft|probation|direncanakan|berja
 
 /* sheet yang ada di database tetapi tidak ada di skema Code.gs */
 const EXTRA=[
+ {sheet:'TRX_Keterlambatan',kategoriBesar:'Transaksi',kategoriDetail:'Absensi & Cuti',namaTabel:'Keterlambatan Karyawan',deskripsi:'Catatan keterlambatan karyawan dari petugas piket beserta foto bukti. Data diambil dari sheet sumber (baca saja).',keyField:'ID Keterlambatan',labelField:'ID Keterlambatan',columns:[]},
  {sheet:'MST_Hari_Kerja',kategoriBesar:'Master Data',kategoriDetail:'Master Data',namaTabel:'Hari & Jam Kerja',deskripsi:'Jam masuk, pulang, istirahat, dan toleransi keterlambatan per hari kerja.',keyField:'Hari Kerja',labelField:'Hari Kerja',columns:[]},
  {sheet:'Share',kategoriBesar:'Sistem',kategoriDetail:'Sistem',namaTabel:'Rekap Karyawan (Share)',deskripsi:'Rekap karyawan beserta sertifikat dan tanda tangan digital.',keyField:'ID_Karyawan',labelField:'Nama_Lengkap',columns:[]}
 ];
@@ -2400,7 +2410,12 @@ const FLD_GROUPS={MST_Employee:[
  ['Penggajian & Legal',['Gaji_Pokok','Nama_Bank','No_Rekening_Bank','NPWP','No_BPJS_Kesehatan','No_BPJS_Ketenagakerjaan']]]};
 const REL=[['TRX_LeaveRequest','Izin & Cuti'],['TRX_Attendance','Absensi'],['TRX_Overtime','Lembur'],['TRX_Contract','Kontrak Kerja'],['TRX_PayrollDetail','Slip Gaji'],['TRX_Loan','Pinjaman'],['TRX_PerformanceReview','Penilaian Kinerja'],['TRX_TrainingParticipant','Pelatihan'],['TRX_Disciplinary','Sanksi'],['TRX_AssetAssignment','Aset'],['TRX_EmployeeDocument','Dokumen']];
 const EMPREV={MST_Department:'ID_Departemen',MST_Position:'ID_Jabatan',MST_JobLevel:'ID_Level'};
-let detailCtx=null;
+let detailCtx=null,detailStack=[];
+function backBtnHtml(){
+ if(!detailStack.length)return '';
+ const p=detailStack[detailStack.length-1],pt=tablesBySheet[p.sheet],pl=has(p.rec[pt.labelField])?p.rec[pt.labelField]:p.rec[pt.keyField];
+ return `<button type="button" class="d-back" id="dBack">${svgIcon('chevLeft')}Kembali ke ${escapeHtml(String(pl))}</button>`;
+}
 async function loadRel(s){if(!recordsCache[s])recordsCache[s]=await apiCall('listRecords',{sheet:s});syncColumns(s);return recordsCache[s];}
 const brief=(s,r)=>{const t=tablesBySheet[s];return t.columns.filter(c=>c.name!==t.keyField&&!/^ID[_ ]/i.test(c.name)&&has(r[c.name])&&!['file','link','textarea'].includes(c.type)).slice(0,3).map(c=>plain(r[c.name],c)).join(' · ')||String(r[t.keyField]);};
 
@@ -2420,27 +2435,35 @@ function openDetail(sheet,rec){
  const st=['Status_Karyawan','Status_Approval','Status_Kontrak','Status','Disetujui Oleh (Status)','Status_Aktif'].find(k=>has(rec[k]));
  const sub=isEmp?[rec.ID_Jabatan,rec.ID_Departemen].filter(has).join(' · '):t.namaTabel+(has(rec[t.keyField])?' · '+rec[t.keyField]:'');
  document.getElementById('detailInner').innerHTML=`<div class="d-hero"><button class="icon-btn d-x" id="dClose" title="Tutup">${svgIcon('x')}</button>
-  <div class="d-top"><div class="avatar">${initials(lab)}</div><div><h3>${escapeHtml(lab)}</h3><p>${escapeHtml(sub)}${isEmp&&has(rec.ID_Karyawan)?' · '+escapeHtml(rec.ID_Karyawan):''}</p><div style="margin-top:8px">${st?cellValue({type:'text',name:st},rec[st]):''}</div></div></div>
+  ${backBtnHtml()}<div class="d-top"><div class="avatar">${initials(lab)}</div><div><h3>${escapeHtml(lab)}</h3><p>${escapeHtml(sub)}${isEmp&&has(rec.ID_Karyawan)?' · '+escapeHtml(rec.ID_Karyawan):''}</p><div style="margin-top:8px">${st?cellValue({type:'text',name:st},rec[st]):''}</div></div></div>
   <div class="d-meter"><span>Kelengkapan data</span><div class="bar"><i style="width:${pct}%"></i></div><b>${pct}%</b></div></div>
   <div class="d-body">${secs}${em.length?`<details class="d-sec"><summary>${em.length} field belum terisi</summary><div class="d-chips">${em.map(c=>`<span class="chip gray">${escapeHtml(c.name.replace(/_/g,' '))}</span>`).join('')}</div></details>`:''}<div id="dRel"></div></div>
   <div class="drawer-foot">${READONLY.has(sheet)?'':`<button class="btn btn-primary" id="dEdit">${svgIcon('pencil')}Ubah Data</button>`}<button class="btn btn-outline" id="dPrint">${svgIcon('printer')}Cetak</button></div>`;
  document.getElementById('dClose').onclick=closeDetail;
+ const bk=document.getElementById('dBack');
+ if(bk)bk.onclick=()=>{const p=detailStack.pop();if(p)openDetail(p.sheet,p.rec);};
  document.getElementById('dPrint').onclick=()=>printDetail(sheet,rec);
  const eb=document.getElementById('dEdit');
  if(eb)eb.onclick=async()=>{closeDetail();if(currentSheet!==sheet||currentView!=='module')await navigateTo('module',sheet);const r2=(recordsCache[sheet]||[]).find(x=>x.__row===rec.__row)||rec;openDrawer(sheet,r2);};
  document.getElementById('detailOverlay').classList.add('show');document.getElementById('detailDrawer').classList.add('show');
  if(isEmp)relEmp(rec);else if(EMPREV[sheet])relRev(sheet,rec);
 }
-function closeDetail(){document.getElementById('detailOverlay').classList.remove('show');document.getElementById('detailDrawer').classList.remove('show');detailCtx=null;}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('show');document.getElementById('detailDrawer').classList.remove('show');detailCtx=null;detailStack=[];}
 async function relEmp(e){
  const box=document.getElementById('dRel');if(!box)return;
  box.innerHTML='<div class="d-sec"><h4>Data Terkait</h4><div class="skeleton" style="height:56px"></div></div>';
- const ids=[String(e.ID_Karyawan),String(e.NIK_Karyawan||'#')],nm=String(e.Nama_Lengkap||'').toLowerCase();
- const mine=r=>[r.ID_Karyawan,r['ID Karyawan']].some(x=>has(x)&&ids.includes(String(x)))||String(r['Nama Lengkap']||'').toLowerCase()===nm;
+ const norm=v=>String(v==null?'':v).trim().toLowerCase();
+ const keys=[e.ID_Karyawan,e.NIK_Karyawan,e.Nama_Lengkap].map(norm).filter(Boolean);
+ // cocokkan lewat kolom bernama *Karyawan* atau Nama Lengkap (ID, NIK, atau nama)
+ const mine=r=>Object.keys(r).some(k=>k!=='__row'&&/karyawan|^nama[ _]?lengkap$/i.test(k)&&!/baru|atasan/i.test(k)&&keys.includes(norm(r[k])));
  const res=await Promise.allSettled(REL.map(x=>loadRel(x[0])));
- const html=REL.map((x,i)=>{if(res[i].status!=='fulfilled')return '';const m=res[i].value.filter(mine);if(!m.length)return '';
-  return `<div class="d-sec"><h4>${x[1]} · ${m.length}</h4>${m.slice(0,5).map(r=>`<div class="rel-row" data-open="${x[0]}" data-row="${r.__row}">${escapeHtml(brief(x[0],r))}${svgIcon('chevRight')}</div>`).join('')}</div>`;}).join('');
- if(detailCtx&&detailCtx.rec===e)box.innerHTML=html||'<div class="d-sec"><h4>Data Terkait</h4><p class="muted">Belum ada riwayat izin, absensi, kontrak, atau data lain untuk karyawan ini.</p></div>';
+ const html=REL.map((x,i)=>{
+  const ok=res[i].status==='fulfilled',m=ok?res[i].value.filter(mine):[];
+  const list=!ok?'<p class="muted">Sheet belum tersedia.</p>':!m.length?'<p class="muted">Belum ada data.</p>':
+   m.slice(0,25).map(r=>`<div class="rel-row" data-open="${x[0]}" data-row="${r.__row}">${escapeHtml(brief(x[0],r))}${svgIcon('chevRight')}</div>`).join('')+(m.length>25?`<p class="muted">dan ${m.length-25} lainnya</p>`:'');
+  return `<details class="d-sec rel-acc${m.length?'':' empty'}"${x[0]==='TRX_Overtime'&&m.length?' open':''}><summary>${x[1]}<span class="rel-n">${m.length}</span></summary><div class="rel-body">${list}</div></details>`;
+ }).join('');
+ if(detailCtx&&detailCtx.rec===e)box.innerHTML='<div class="d-sec" style="background:none;border:0;padding:0 2px"><h4>Data Terkait</h4></div>'+html;
 }
 async function relRev(sheet,rec){
  const box=document.getElementById('dRel');if(!box)return;const t=tablesBySheet[sheet],f=EMPREV[sheet];
@@ -2450,7 +2473,7 @@ async function relRev(sheet,rec){
 async function openRef(sheet,val){
  try{if(!tablesBySheet[sheet])return;await loadRel(sheet);const t=tablesBySheet[sheet];
   const rec=recordsCache[sheet].find(r=>[t.keyField,t.labelField].some(f=>String(r[f])===String(val)));
-  rec?openDetail(sheet,rec):showToast('Data rujukan tidak ditemukan.','error');}catch(err){showToast(err.message,'error');}
+  rec?(detailCtx&&detailStack.push(detailCtx),openDetail(sheet,rec)):showToast('Data rujukan tidak ditemukan.','error');}catch(err){showToast(err.message,'error');}
 }
 function printDetail(sheet,rec){
  const t=tablesBySheet[sheet],rows=t.columns.filter(c=>has(rec[c.name])).map(c=>{
@@ -2462,7 +2485,7 @@ function printDetail(sheet,rec){
 document.addEventListener('click',e=>{
  const g=e.target.closest('[data-go]');if(g){navigateTo('module',g.dataset.go);return;}
  const o=e.target.closest('[data-open]');
- if(o){const r=(recordsCache[o.dataset.open]||[]).find(r=>String(r.__row)===o.dataset.row);if(r)openDetail(o.dataset.open,r);return;}
+ if(o){const r=(recordsCache[o.dataset.open]||[]).find(r=>String(r.__row)===o.dataset.row);if(r){if(detailCtx)detailStack.push(detailCtx);openDetail(o.dataset.open,r);}return;}
  const lk=e.target.closest('a.lnk');
  if(lk){if(lk.dataset.ref){e.preventDefault();e.stopPropagation();openRef(lk.dataset.ref,lk.dataset.v);}return;}
  const tr=e.target.closest('tr.clk');if(!tr)return;
@@ -2509,8 +2532,8 @@ document.getElementById('logoutBtn').addEventListener('click',()=>{closeDetail()
 /* ===== V3 — struktur sheet asli + cetak lembur + form berlogo ===== */
 (function(){
 const OT='TRX_Overtime',LOGO=LOGO_ICON_DATA;
-const SHEET_STRUCT={"Share":[["ID_Karyawan","text"],["NIK_Karyawan","number"],["Nama_Lengkap","text"],["Foto_Profil","link"],["Jenis_Kelamin","text"],["Jabatan","text"],["Departemen","text"],["Tanda Tangan Digital","text"],["Digital Sign","text"],["No_Sertifikat","text"],["Jenis_Sertifikat","text"],["Berlaku_Sampai","text"],["Status_Sertifikat","text"],["Status","text"]],"MST_Employee":[["ID_Karyawan","text"],["NIK_Karyawan","number"],["NIK_KTP","text"],["Nama_Lengkap","text"],["Foto_Profil","link"],["Jenis_Kelamin","text"],["Tempat_Lahir","text"],["Tanggal_Lahir","text"],["Usia","text"],["Agama","text"],["Status_Pernikahan","text"],["Jumlah_Tanggungan","text"],["Alamat_KTP","text"],["Alamat_Domisili","text"],["No_HP","number"],["Email","text"],["Pendidikan_Terakhir","text"],["ID_Departemen","text"],["ID_Jabatan","text"],["ID_Level","text"],["ID_Cabang","text"],["ID_Atasan_Langsung","text"],["ID_Shift_Default","text"],["Tanggal_Bergabung","text"],["Masa_Kerja_Tahun","text"],["Status_Karyawan","text"],["Tipe_Karyawan","text"],["Gaji_Pokok","text"],["No_Rekening_Bank","text"],["Nama_Bank","text"],["NPWP","text"],["No_BPJS_Kesehatan","text"],["No_BPJS_Ketenagakerjaan","text"],["Tanggal_Resign","text"],["Status_Aktif","text"]],"MST_Department":[["ID_Departemen","text"],["Nama_Departemen","text"],["ID_Kepala_Departemen","text"],["Deskripsi","text"],["Status_Aktif","text"]],"MST_Position":[["ID_Jabatan","text"],["Nama_Jabatan","text"],["ID_Departemen","text"],["ID_Level","text"],["Job_Desc","text"],["Status_Aktif","text"]],"MST_JobLevel":[["ID_Level","text"],["Nama_Level","text"],["Grade","text"],["Range_Gaji_Min","currency"],["Range_Gaji_Max","currency"]],"MST_Branch":[["ID_Cabang","text"],["Nama_Cabang","text"],["Alamat","text"],["Kota","text"],["Titik_Koordinat","text"],["Penanggung_Jawab","text"],["Status_Aktif","text"]],"MST_Hari_Kerja":[["Hari Kerja","text"],["Jam_Masuk","time"],["Jam_Pulang","time"],["Jam_Istirahat_Mulai","time"],["Jam_Istirahat_Selesai","time"],["Toleransi_Telat_Menit","number"],["Status_Aktif","text"]],"MST_LeaveType":[["ID_Jenis_Cuti","text"],["Nama_Jenis_Cuti","text"],["Jatah_Hari_Per_Tahun","text"],["Dibayar","text"],["Perlu_Lampiran","text"],["Status_Aktif","text"]],"MST_SalaryComponent":[["ID_Komponen","text"],["Nama_Komponen","text"],["Tipe_Komponen","text"],["Sifat","text"],["Nominal_Default","currency"],["Keterangan_Formula","text"],["Status_Aktif","text"]],"MST_HolidayCalendar":[["ID_Libur","text"],["Tanggal","text"],["Nama_Hari_Libur","text"],["Tipe","text"]],"TRX_Attendance":[["ID_Absensi","text"],["ID_Karyawan","text"],["Tanggal","text"],["ID_Shift","text"],["Jam_Masuk","text"],["Foto_Absen_Masuk","link"],["Lokasi_Absen_Masuk","text"],["Jam_Pulang","text"],["Foto_Absen_Pulang","link"],["Lokasi_Absen_Pulang","text"],["Status_Kehadiran","text"],["Menit_Keterlambatan","text"],["Total_Jam_Kerja","text"],["Keterangan","text"]],"TRX_Overtime":[["ID Lembur","text"],["No.","number"],["ID Karyawan","text"],["Jabatan","text"],["Nama Karyawan","text"],["Alasan Pekerjaan","text"],["Waktu Lembur","text"],["Departemen","text"],["Diketahui Oleh (Status)","text"],["Diketahui Oleh (Nama)","text"],["Diketahui Oleh (Tanggal)","text"],["Diketahui Oleh (TTD)","link"],["Disetujui Oleh (Status)","text"],["Disetujui Oleh (Nama)","text"],["Disetujui Oleh (Tanggal)","text"],["Disetujui Oleh (TTD)","link"],["Diketahui Oleh (Catatan)","text"],["Link Validasi","link"]],"TRX_LeaveRequest":[["ID Izin","text"],["Diajukan","datetime"],["ID Karyawan","text"],["Nama Lengkap","text"],["Jabatan","text"],["Departemen","text"],["Klasifikasi Izin","text"],["Jenis Izin","text"],["Tanggal Mulai","date"],["Tanggal Selesai","date"],["Durasi","text"],["Jam Keluar","text"],["Jam Kembali","text"],["Kembali ke Kantor?","text"],["Keterangan/Alasan","text"],["Handover Tugas ke","text"],["Foto Lampiran Izin","link"],["Disetujui Oleh (Status)","text"],["Disetujui Oleh (Nama)","text"],["Disetujui Oleh (Tanggal)","datetime"],["Disetujui Oleh (TTD)","link"],["Diterima Oleh (Status)","text"],["Diterima Oleh (Nama)","text"],["Diterima Oleh (Tanggal)","text"],["Diterima Oleh (TTD)","link"],["Security","text"]],"TRX_PayrollRun":[["ID_Payroll_Run","text"],["Periode","text"],["Tanggal_Mulai_Periode","text"],["Tanggal_Selesai_Periode","text"],["Tanggal_Pembayaran","text"],["Status","text"],["Diproses_Oleh","text"],["Total_Karyawan","text"],["Total_Pengeluaran","text"],["Catatan","text"]],"TRX_PayrollDetail":[["ID_Payroll_Detail","text"],["ID_Payroll_Run","text"],["ID_Karyawan","text"],["Jumlah_Hari_Kerja","text"],["Jumlah_Hari_Absen","text"],["Gaji_Pokok","text"],["Total_Tunjangan","text"],["Total_Lembur","text"],["Total_Potongan","text"],["BPJS_Kesehatan_Potongan","text"],["BPJS_Ketenagakerjaan_Potongan","text"],["PPh21","text"],["Potongan_Angsuran_Pinjaman","text"],["Gaji_Bruto","text"],["Gaji_Bersih_Diterima","text"],["Status_Bayar","text"],["Slip_Gaji","text"],["Catatan","text"]],"TRX_Loan":[["ID_Pinjaman","text"],["ID_Karyawan","text"],["Tanggal_Pengajuan","text"],["Jumlah_Pinjaman","text"],["Jumlah_Cicilan","text"],["Alasan","text"],["Status_Approval","text"],["Disetujui_Oleh","text"],["Sisa_Pinjaman","text"]],"TRX_LoanInstallment":[["ID_Angsuran","text"],["ID_Pinjaman","text"],["Cicilan_Ke","text"],["Tanggal_Jatuh_Tempo","text"],["Jumlah_Angsuran","text"],["Status_Bayar","text"],["Tanggal_Bayar","text"],["ID_Payroll_Detail","text"]],"TRX_PerformanceReview":[["ID_Penilaian","text"],["ID_Karyawan","text"],["Periode_Penilaian","text"],["Tanggal_Penilaian","text"],["ID_Penilai","text"],["Skor_Kedisiplinan","text"],["Skor_Kualitas_Kerja","text"],["Skor_Kerjasama_Tim","text"],["Skor_Inisiatif","text"],["Skor_Kepemimpinan","text"],["Nilai_Total","text"],["Predikat","text"],["Catatan_Penilai","text"],["Rencana_Pengembangan","text"],["Status","text"]],"TRX_Training":[["ID_Training","text"],["Nama_Training","text"],["Penyelenggara","text"],["Jenis_Training","text"],["Tanggal_Mulai","text"],["Tanggal_Selesai","text"],["Lokasi","text"],["Biaya","text"],["Status","text"],["Catatan","text"]],"TRX_TrainingParticipant":[["ID_Peserta_Training","text"],["ID_Training","text"],["ID_Karyawan","text"],["Status_Kehadiran","text"],["Nilai_Hasil_Training","text"],["Sertifikat","text"],["Catatan","text"]],"TRX_Recruitment":[["ID","text"],["Judul","text"],["Departemen","text"],["Lokasi","text"],["Tipe","text"],["Deskripsi","text"],["Kualifikasi (pisah ;)","text"],["Kata Kunci (pisah ,)","text"],["Status","text"],["Deadline","date"]],"TRX_Candidate":[["tgl","text"],["email","text"],["nama","text"],["minat","text"],["alert","text"],["setuju","text"],["cvfile","link"],["cvtgl","text"],["cvid","text"],["cvteks","text"]],"TRX_Application":[["ID","text"],["Timestamp","datetime"],["StatusProses","text"],["Posisi1","text"],["Posisi2","text"],["TanggalPengajuan","date"],["NamaLengkap","text"],["TempatLahir","text"],["TanggalLahir","date"],["JenisKelamin","text"],["Agama","text"],["StatusPerkawinan","text"],["AlamatDomisili","text"],["NoHP","number"],["StatusTempatTinggal","text"],["KeluargaOrtuSaudara_JSON","text"],["KeluargaPasanganAnak_JSON","text"],["PendidikanFormal_JSON","text"],["Pelatihan_JSON","text"],["SumberPembiayaan","text"],["BahasaAsing_JSON","text"],["RencanaPengembangan","text"],["MotivasiMelamar","text"],["SumberInfoLowongan","text"],["RiwayatPekerjaan_JSON","text"],["Referensi_JSON","text"],["IzinHubungiReferensi","text"],["AktivitasSosial_JSON","text"],["RelasiDiPerusahaan","text"],["NamaJabatanRelasi","text"],["SumberInfoProfil","text"],["KegemaranHobi","text"],["AktivitasWaktuLuang","text"],["MinatBaca_JSON","text"],["LanggananSuratKabar","text"],["LanggananMajalah","text"],["FasilitasKendaraan","text"],["JenisSIM","text"],["RiwayatKesehatan","text"],["RiwayatPenyakitBerat_JSON","text"],["RiwayatPsikotes_JSON","text"],["KompensasiTerakhir_JSON","text"],["KompensasiEkspektasi_JSON","text"],["TanggalEfektifBergabung","date"]],"TRX_Contract":[["ID_Kontrak","text"],["ID_Karyawan","text"],["Nomor_Kontrak","text"],["Jenis_Kontrak","text"],["Tanggal_Mulai","text"],["Tanggal_Berakhir","text"],["File_Kontrak","link"],["Status_Kontrak","text"],["Catatan","text"]],"TRX_Disciplinary":[["ID_Sanksi","text"],["ID_Karyawan","text"],["Tanggal_Kejadian","text"],["Jenis_Pelanggaran","text"],["Kategori_Sanksi","text"],["Kronologi","text"],["Diproses_Oleh","text"],["File_Surat_Sanksi","link"],["Status","text"]],"TRX_EmployeeDocument":[["ID_Dokumen","text"],["ID_Karyawan","text"],["Jenis_Dokumen","text"],["Nama_Dokumen","text"],["File_Dokumen","link"],["Tanggal_Upload","text"],["Tanggal_Kadaluarsa","text"],["Keterangan","text"]],"TRX_AssetAssignment":[["ID_Aset_Karyawan","text"],["ID_Karyawan","text"],["Nama_Aset","text"],["Kode_Aset","text"],["Tanggal_Serah_Terima","text"],["Kondisi_Saat_Diserahkan","text"],["Tanggal_Pengembalian","text"],["Kondisi_Saat_Dikembalikan","text"],["Status","text"]],"TRX_Resignation":[["ID_Resign","text"],["ID_Karyawan","text"],["Tanggal_Pengajuan","text"],["Jenis_Pemutusan","text"],["Alasan","text"],["Tanggal_Efektif_Berhenti","text"],["Status_Clearance","text"],["Exit_Interview","text"],["Tanda_Tangan_Karyawan","text"],["Disetujui_Oleh","text"]],"SYS_User":[["ID_User","text"],["ID_Karyawan","text"],["Username","text"],["Email","text"],["Role_Akses","text"],["Status_Aktif","text"],["Terakhir_Login","text"]]};
-const KEYMAP={TRX_Overtime:['ID Lembur','Nama Karyawan'],TRX_LeaveRequest:['ID Izin','Nama Lengkap'],TRX_Recruitment:['ID','Judul'],TRX_Candidate:['email','nama'],MST_Hari_Kerja:['Hari Kerja','Hari Kerja']};
+const SHEET_STRUCT={"Share":[["ID_Karyawan","text"],["NIK_Karyawan","number"],["Nama_Lengkap","text"],["Foto_Profil","link"],["Jenis_Kelamin","text"],["Jabatan","text"],["Departemen","text"],["Tanda Tangan Digital","text"],["Digital Sign","text"],["No_Sertifikat","text"],["Jenis_Sertifikat","text"],["Berlaku_Sampai","text"],["Status_Sertifikat","text"],["Status","text"]],"MST_Employee":[["ID_Karyawan","text"],["NIK_Karyawan","number"],["NIK_KTP","text"],["Nama_Lengkap","text"],["Foto_Profil","link"],["Jenis_Kelamin","text"],["Tempat_Lahir","text"],["Tanggal_Lahir","text"],["Usia","text"],["Agama","text"],["Status_Pernikahan","text"],["Jumlah_Tanggungan","text"],["Alamat_KTP","text"],["Alamat_Domisili","text"],["No_HP","number"],["Email","text"],["Pendidikan_Terakhir","text"],["ID_Departemen","text"],["ID_Jabatan","text"],["ID_Level","text"],["ID_Cabang","text"],["ID_Atasan_Langsung","text"],["ID_Shift_Default","text"],["Tanggal_Bergabung","text"],["Masa_Kerja_Tahun","text"],["Status_Karyawan","text"],["Tipe_Karyawan","text"],["Gaji_Pokok","text"],["No_Rekening_Bank","text"],["Nama_Bank","text"],["NPWP","text"],["No_BPJS_Kesehatan","text"],["No_BPJS_Ketenagakerjaan","text"],["Tanggal_Resign","text"],["Status_Aktif","text"]],"MST_Department":[["ID_Departemen","text"],["Nama_Departemen","text"],["ID_Kepala_Departemen","text"],["Deskripsi","text"],["Status_Aktif","text"]],"MST_Position":[["ID_Position","text"],["Position","text"],["ID_Departemen","text"],["ID_Level","text"],["Job_Desc","textarea"],["Status_Aktif","text"]],"MST_JobLevel":[["ID_Level","text"],["Nama_Level","text"],["Grade","text"],["Range_Gaji_Min","currency"],["Range_Gaji_Max","currency"]],"MST_Branch":[["ID_Cabang","text"],["Nama_Cabang","text"],["Alamat","text"],["Kota","text"],["Titik_Koordinat","text"],["Penanggung_Jawab","text"],["Status_Aktif","text"]],"MST_Hari_Kerja":[["Hari Kerja","text"],["Jam_Masuk","time"],["Jam_Pulang","time"],["Jam_Istirahat_Mulai","time"],["Jam_Istirahat_Selesai","time"],["Toleransi_Telat_Menit","number"],["Status_Aktif","text"]],"MST_LeaveType":[["ID_Jenis_Cuti","text"],["Nama_Jenis_Cuti","text"],["Jatah_Hari_Per_Tahun","text"],["Dibayar","text"],["Perlu_Lampiran","text"],["Status_Aktif","text"]],"MST_SalaryComponent":[["ID_Komponen","text"],["Nama_Komponen","text"],["Tipe_Komponen","text"],["Sifat","text"],["Nominal_Default","currency"],["Keterangan_Formula","text"],["Status_Aktif","text"]],"MST_HolidayCalendar":[["ID_Libur","text"],["Tanggal","text"],["Nama_Hari_Libur","text"],["Tipe","text"]],"TRX_Attendance":[["ID_Absensi","text"],["ID_Karyawan","text"],["Tanggal","text"],["ID_Shift","text"],["Jam_Masuk","text"],["Foto_Absen_Masuk","link"],["Lokasi_Absen_Masuk","text"],["Jam_Pulang","text"],["Foto_Absen_Pulang","link"],["Lokasi_Absen_Pulang","text"],["Status_Kehadiran","text"],["Menit_Keterlambatan","text"],["Total_Jam_Kerja","text"],["Keterangan","text"]],"TRX_Overtime":[["ID Lembur","text"],["No.","number"],["ID Karyawan","text"],["Jabatan","text"],["Nama Karyawan","text"],["Alasan Pekerjaan","text"],["Waktu Lembur","text"],["Departemen","text"],["Diketahui Oleh (Status)","text"],["Diketahui Oleh (Nama)","text"],["Diketahui Oleh (Tanggal)","text"],["Diketahui Oleh (TTD)","link"],["Disetujui Oleh (Status)","text"],["Disetujui Oleh (Nama)","text"],["Disetujui Oleh (Tanggal)","text"],["Disetujui Oleh (TTD)","link"],["Diketahui Oleh (Catatan)","text"],["Link Validasi","link"]],"TRX_LeaveRequest":[["ID Izin","text"],["Diajukan","datetime"],["ID Karyawan","text"],["Nama Lengkap","text"],["Jabatan","text"],["Departemen","text"],["Klasifikasi Izin","text"],["Jenis Izin","text"],["Tanggal Mulai","date"],["Tanggal Selesai","date"],["Durasi","text"],["Jam Keluar","text"],["Jam Kembali","text"],["Kembali ke Kantor?","text"],["Keterangan/Alasan","text"],["Handover Tugas ke","text"],["Foto Lampiran Izin","link"],["Disetujui Oleh (Status)","text"],["Disetujui Oleh (Nama)","text"],["Disetujui Oleh (Tanggal)","datetime"],["Disetujui Oleh (TTD)","link"],["Diterima Oleh (Status)","text"],["Diterima Oleh (Nama)","text"],["Diterima Oleh (Tanggal)","text"],["Diterima Oleh (TTD)","link"],["Security","text"]],"TRX_PayrollRun":[["ID_Payroll_Run","text"],["Periode","text"],["Tanggal_Mulai_Periode","text"],["Tanggal_Selesai_Periode","text"],["Tanggal_Pembayaran","text"],["Status","text"],["Diproses_Oleh","text"],["Total_Karyawan","text"],["Total_Pengeluaran","text"],["Catatan","text"]],"TRX_PayrollDetail":[["ID_Payroll_Detail","text"],["ID_Payroll_Run","text"],["ID_Karyawan","text"],["Jumlah_Hari_Kerja","text"],["Jumlah_Hari_Absen","text"],["Gaji_Pokok","text"],["Total_Tunjangan","text"],["Total_Lembur","text"],["Total_Potongan","text"],["BPJS_Kesehatan_Potongan","text"],["BPJS_Ketenagakerjaan_Potongan","text"],["PPh21","text"],["Potongan_Angsuran_Pinjaman","text"],["Gaji_Bruto","text"],["Gaji_Bersih_Diterima","text"],["Status_Bayar","text"],["Slip_Gaji","text"],["Catatan","text"]],"TRX_Loan":[["ID_Pinjaman","text"],["ID_Karyawan","text"],["Tanggal_Pengajuan","text"],["Jumlah_Pinjaman","text"],["Jumlah_Cicilan","text"],["Alasan","text"],["Status_Approval","text"],["Disetujui_Oleh","text"],["Sisa_Pinjaman","text"]],"TRX_LoanInstallment":[["ID_Angsuran","text"],["ID_Pinjaman","text"],["Cicilan_Ke","text"],["Tanggal_Jatuh_Tempo","text"],["Jumlah_Angsuran","text"],["Status_Bayar","text"],["Tanggal_Bayar","text"],["ID_Payroll_Detail","text"]],"TRX_PerformanceReview":[["ID_Penilaian","text"],["ID_Karyawan","text"],["Periode_Penilaian","text"],["Tanggal_Penilaian","text"],["ID_Penilai","text"],["Skor_Kedisiplinan","text"],["Skor_Kualitas_Kerja","text"],["Skor_Kerjasama_Tim","text"],["Skor_Inisiatif","text"],["Skor_Kepemimpinan","text"],["Nilai_Total","text"],["Predikat","text"],["Catatan_Penilai","text"],["Rencana_Pengembangan","text"],["Status","text"]],"TRX_Training":[["ID_Training","text"],["Nama_Training","text"],["Penyelenggara","text"],["Jenis_Training","text"],["Tanggal_Mulai","text"],["Tanggal_Selesai","text"],["Lokasi","text"],["Biaya","text"],["Status","text"],["Catatan","text"]],"TRX_TrainingParticipant":[["ID_Peserta_Training","text"],["ID_Training","text"],["ID_Karyawan","text"],["Status_Kehadiran","text"],["Nilai_Hasil_Training","text"],["Sertifikat","text"],["Catatan","text"]],"TRX_Recruitment":[["ID","text"],["Judul","text"],["Departemen","text"],["Lokasi","text"],["Tipe","text"],["Deskripsi","text"],["Kualifikasi (pisah ;)","text"],["Kata Kunci (pisah ,)","text"],["Status","text"],["Deadline","date"]],"TRX_Candidate":[["tgl","text"],["email","text"],["nama","text"],["minat","text"],["alert","text"],["setuju","text"],["cvfile","link"],["cvtgl","text"],["cvid","text"],["cvteks","text"]],"TRX_Application":[["ID","text"],["Timestamp","datetime"],["StatusProses","text"],["Posisi1","text"],["Posisi2","text"],["TanggalPengajuan","date"],["NamaLengkap","text"],["TempatLahir","text"],["TanggalLahir","date"],["JenisKelamin","text"],["Agama","text"],["StatusPerkawinan","text"],["AlamatDomisili","text"],["NoHP","number"],["StatusTempatTinggal","text"],["KeluargaOrtuSaudara_JSON","text"],["KeluargaPasanganAnak_JSON","text"],["PendidikanFormal_JSON","text"],["Pelatihan_JSON","text"],["SumberPembiayaan","text"],["BahasaAsing_JSON","text"],["RencanaPengembangan","text"],["MotivasiMelamar","text"],["SumberInfoLowongan","text"],["RiwayatPekerjaan_JSON","text"],["Referensi_JSON","text"],["IzinHubungiReferensi","text"],["AktivitasSosial_JSON","text"],["RelasiDiPerusahaan","text"],["NamaJabatanRelasi","text"],["SumberInfoProfil","text"],["KegemaranHobi","text"],["AktivitasWaktuLuang","text"],["MinatBaca_JSON","text"],["LanggananSuratKabar","text"],["LanggananMajalah","text"],["FasilitasKendaraan","text"],["JenisSIM","text"],["RiwayatKesehatan","text"],["RiwayatPenyakitBerat_JSON","text"],["RiwayatPsikotes_JSON","text"],["KompensasiTerakhir_JSON","text"],["KompensasiEkspektasi_JSON","text"],["TanggalEfektifBergabung","date"]],"TRX_Contract":[["ID_Kontrak","text"],["ID_Karyawan","text"],["Nomor_Kontrak","text"],["Jenis_Kontrak","text"],["Tanggal_Mulai","text"],["Tanggal_Berakhir","text"],["File_Kontrak","link"],["Status_Kontrak","text"],["Catatan","text"]],"TRX_Disciplinary":[["ID_Sanksi","text"],["ID_Karyawan","text"],["Tanggal_Kejadian","text"],["Jenis_Pelanggaran","text"],["Kategori_Sanksi","text"],["Kronologi","text"],["Diproses_Oleh","text"],["File_Surat_Sanksi","link"],["Status","text"]],"TRX_EmployeeDocument":[["ID_Dokumen","text"],["ID_Karyawan","text"],["Jenis_Dokumen","text"],["Nama_Dokumen","text"],["File_Dokumen","link"],["Tanggal_Upload","text"],["Tanggal_Kadaluarsa","text"],["Keterangan","text"]],"TRX_AssetAssignment":[["ID_Aset_Karyawan","text"],["ID_Karyawan","text"],["Nama_Aset","text"],["Kode_Aset","text"],["Tanggal_Serah_Terima","text"],["Kondisi_Saat_Diserahkan","text"],["Tanggal_Pengembalian","text"],["Kondisi_Saat_Dikembalikan","text"],["Status","text"]],"TRX_Resignation":[["ID_Resign","text"],["ID_Karyawan","text"],["Tanggal_Pengajuan","text"],["Jenis_Pemutusan","text"],["Alasan","text"],["Tanggal_Efektif_Berhenti","text"],["Status_Clearance","text"],["Exit_Interview","text"],["Tanda_Tangan_Karyawan","text"],["Disetujui_Oleh","text"]],"SYS_User":[["ID_User","text"],["ID_Karyawan","text"],["Username","text"],["Email","text"],["Role_Akses","text"],["Status_Aktif","text"],["Terakhir_Login","text"]],"TRX_Keterlambatan":[["ID Keterlambatan","text"],["Waktu Tiba","text"],["ID Karyawan","text"],["Nama Karyawan","text"],["Departemen","text"],["Alasan Keterlambatan","text"],["Tindakan Korektif","text"],["ID Petugas Piket","text"],["Menit Terlambat","number"],["Foto Bukti","link"],["Catatan Petugas","text"]]};
+const KEYMAP={MST_Position:['ID_Position','Position'],TRX_Keterlambatan:['ID Keterlambatan','ID Keterlambatan'],TRX_Overtime:['ID Lembur','Nama Karyawan'],TRX_LeaveRequest:['ID Izin','Nama Lengkap'],TRX_Recruitment:['ID','Judul'],TRX_Candidate:['email','nama'],MST_Hari_Kerja:['Hari Kerja','Hari Kerja']};
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const esc=s=>escapeHtml(s==null?'':s);
 
@@ -2689,5 +2712,130 @@ window.openDrawer=function(s,r){const h=document.querySelector('#drawer .drawer-
  return _od(s,r);};
 })();
 </script>
+<style>
+/* ===== V4 — foto tampil langsung + dropdown relasi (Jabatan) ===== */
+.pic{width:44px;height:44px;border-radius:10px;object-fit:cover;cursor:zoom-in;background:#eef1f8;border:1px solid rgba(15,23,42,.1);display:block}
+.dv .pic{width:100%;max-width:260px;height:auto;max-height:260px;object-fit:contain}
+.avatar .pic{width:100%;height:100%;border:0;border-radius:inherit}
+.pic-new,.file-preview .pic{margin-top:8px;width:96px;height:96px}
+#picBox{position:fixed;inset:0;z-index:9999;background:rgba(10,14,30,.84);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:20px}
+#picBox.show{display:flex}
+#picBox img{max-width:min(92vw,980px);max-height:78vh;border-radius:12px;background:#fff;object-fit:contain}
+#picBox a{color:#fff;font-size:13px;text-decoration:underline}
+</style>
+<script>
+/* ===== V4 ===== */
+(function(){
+const e4=s=>escapeHtml(s==null?'':s);
+const DOC_NAME=/(^|[_\s])(file|dokumen|kontrak|cv|surat|lampiran|slip|sertifikat)/i;
+const IMG_NAME=/foto|photo|gambar|selfie|image/i;
+const driveId=u=>{const m=/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{15,})/.exec(String(u));return m?m[1]:'';};
+const norm=v=>String(v==null?'':v).trim().toLowerCase();
+
+/* ---------- foto ---------- */
+function isPicUrl(v,col){
+  if(!has(v)||!/^https?:\/\/\S+$/i.test(String(v).trim()))return false;
+  const s=String(v).trim(),name=(col&&col.name)||'';
+  if(/\.(png|jpe?g|gif|webp|bmp|svg)(\?|#|$)/i.test(s))return true;
+  if((col&&col.appType==='Image')||IMG_NAME.test(name))return true;
+  if(/lh\d?\.googleusercontent\.com\//.test(s))return true;
+  return /drive\.google\.com/.test(s)&&!!driveId(s)&&!DOC_NAME.test(name);
+}
+const thumbUrl=(u,w)=>{const id=driveId(u);return id&&/drive\.google\.com/.test(u)?`https://drive.google.com/thumbnail?id=${id}&sz=w${w||400}`:String(u).trim();};
+const picImg=u=>{const url=String(u).trim();return `<img class="pic" loading="lazy" referrerpolicy="no-referrer" alt="Foto" src="${e4(thumbUrl(url,400))}" data-url="${e4(url)}" onerror="picFail(this)" onclick="picZoom(event,this)">`;};
+const picCache=new Map();
+function picLink(img){const a=document.createElement('a');a.className='lnk';a.href=img.dataset.url;a.target='_blank';a.rel='noopener';a.innerHTML='Buka foto '+svgIcon('external');img.replaceWith(a);}
+/* thumbnail Drive gagal (file privat) → minta backend mengambil gambarnya; kalau gagal juga → tampilkan link */
+window.picFail=async function(img){
+  const id=driveId(img.dataset.url);
+  if(img.dataset.tried||!id)return picLink(img);
+  img.dataset.tried='1';
+  try{
+    let d=picCache.get(id);
+    if(!d){d=await apiCall('getImage',{fileId:id});picCache.set(id,d);}
+    img.src=d.dataUrl;
+  }catch(err){picLink(img);}
+};
+window.picZoom=function(ev,img){
+  ev.preventDefault();ev.stopPropagation();
+  let box=document.getElementById('picBox');
+  if(!box){
+    box=document.createElement('div');box.id='picBox';
+    box.innerHTML='<img alt="Foto"><a target="_blank" rel="noopener">Buka file asli</a>';
+    box.addEventListener('click',e=>{if(e.target.tagName!=='A')box.classList.remove('show');});
+    document.body.appendChild(box);
+  }
+  const big=box.querySelector('img');
+  big.onerror=()=>{big.onerror=null;big.src=img.currentSrc||img.src;};
+  big.src=/thumbnail\?id=/.test(img.src)?img.src.replace(/sz=w\d+/,'sz=w1600'):(img.currentSrc||img.src);
+  box.querySelector('a').href=img.dataset.url||img.src;
+  box.classList.add('show');
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const b=document.getElementById('picBox');if(b)b.classList.remove('show');}});
+
+/* sel tabel & halaman detail: foto muncul langsung */
+const _cv=window.cellValue;
+window.cellValue=function(col,val){return (has(val)&&isPicUrl(val,col))?picImg(val):_cv(col,val);};
+
+/* foto profil karyawan di header halaman detail */
+const _od=window.openDetail;
+window.openDetail=function(sheet,rec){
+  _od(sheet,rec);
+  const u=rec&&rec.Foto_Profil;
+  if(has(u)&&isPicUrl(u,{name:'Foto_Profil'})){const av=document.querySelector('#detailInner .d-top .avatar');if(av)av.innerHTML=picImg(u);}
+};
+
+/* form ubah: tampilkan foto yang tersimpan + pratinjau foto baru */
+const _dr=window.openDrawer;
+window.openDrawer=function(s,r){
+  _dr(s,r);
+  if(!r)return;
+  const t=tablesBySheet[s];
+  document.querySelectorAll('#drawerBody .file-preview[data-preview]').forEach(el=>{
+    const name=el.dataset.preview,v=r[name],col=t&&t.columns.find(c=>c.name===name);
+    if(has(v)&&isPicUrl(v,col||{name}))el.innerHTML=picImg(v)+'<div style="font-size:12px;margin-top:4px">Foto tersimpan — pilih file baru di atas untuk mengganti</div>';
+  });
+};
+document.addEventListener('change',e=>{
+  const inp=e.target;if(!inp.matches||!inp.matches('.file-drop input[type="file"]'))return;
+  const box=inp.closest('.field');if(!box)return;
+  const old=box.querySelector('.pic-new');if(old)old.remove();
+  const f=inp.files&&inp.files[0];
+  if(f&&/^image\//.test(f.type)){
+    const n=document.createElement('img');n.className='pic pic-new';n.alt='Pratinjau';n.src=URL.createObjectURL(f);n.dataset.url=n.src;
+    n.onclick=ev=>picZoom(ev,n);box.appendChild(n);
+  }
+});
+
+/* ---------- dropdown relasi (ID_Jabatan, ID_Departemen, dst.) ---------- */
+/* Opsi dibaca dari sheet master. Bila backend memberi opsi kosong/"undefined"
+   (header master tidak sama dengan skema Code.gs), opsi dibangun ulang dari data sheet. */
+const _g=window.getRefOptionsCached;
+window.getRefOptionsCached=async function(s){
+  let r=await _g(s);
+  if(Array.isArray(r)&&r.length&&r.some(o=>!has(o.id)||o.label==='undefined')){
+    try{
+      const t=tablesBySheet[s],recs=await apiCall('listRecords',{sheet:s});
+      if(t)r=recs.map(x=>({id:x[t.keyField],label:has(x[t.labelField])?String(x[t.labelField]):String(has(x[t.keyField])?x[t.keyField]:'')})).filter(o=>has(o.id)||o.label);
+    }catch(err){}
+  }
+  if(Array.isArray(r)&&LABEL_REFS.has(s)){
+    const seen=new Set();
+    r=r.filter(o=>{const k=norm(o.label);if(!k||k==='undefined'||seen.has(k))return false;seen.add(k);return true;});
+  }
+  refOptionsCache[s]=r;
+  return r;
+};
+/* isi <select>: nilai yang sudah tersimpan tidak boleh hilang walau tidak ada di master */
+window.refSelectHtml=function(refSheet,opts,curVal){
+  const list=(opts||[]).map(o=>({v:String(refVal(refSheet,o)),l:String(o.label),id:o.id}));
+  const hit=list.find(x=>x.v===String(curVal))||list.find(x=>String(x.id)===String(curVal))||list.find(x=>norm(x.v)===norm(curVal));
+  let h='<option value="">— Pilih —</option>';
+  if(has(curVal)&&!hit)h+=`<option value="${e4(curVal)}" selected>${e4(curVal)} (belum ada di master)</option>`;
+  return h+list.map(x=>`<option value="${e4(x.v)}"${x===hit?' selected':''}>${e4(x.l)}</option>`).join('');
+};
+})();
+</script>
+
 </body>
 </html>
