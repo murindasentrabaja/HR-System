@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#EEF2FB">
 <title>HRIS ERP System — PT Murinda Sentra Baja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2843,5 +2844,203 @@ window.refSelectHtml=function(refSheet,opts,curVal){
 })();
 </script>
 
+<style>
+/* ===== LAPISAN PONSEL & IFRAME — tidak mengubah tampilan desktop ===== */
+:root{--bn-h:0px}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#drawer,#detailDrawer{top:0;bottom:0;height:auto}
+a,button,select,summary,.nav-item,tr.clk,.shortcut-pill,.stat-card{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn:focus-visible,.icon-btn:focus-visible,.nav-item:focus-visible,.bn-item:focus-visible,.lnk:focus-visible,.pager button:focus-visible{outline:2px solid var(--brand-1);outline-offset:2px}
+.drawer-body,.d-body,#content,#sidebar{overscroll-behavior:contain}
+#bottomNav,.m-sort{display:none}
+@media (hover:none){.btn:hover,.stat-card:hover,.shortcut-pill:hover,.icon-badge:hover{transform:none}}
+
+@media (max-width:900px){
+ html.has-bn{--bn-h:64px}
+ #appShell{position:fixed;inset:0;min-height:0}
+ #mainArea{height:100%;padding-bottom:calc(var(--bn-h) + env(safe-area-inset-bottom,0px))}
+ #bgAmbient span{animation:none;filter:blur(48px)}
+ .glass,.card{-webkit-backdrop-filter:none;backdrop-filter:none}
+ .glass{background:rgba(255,255,255,.9)}
+ .card{background:rgba(255,255,255,.95)}
+ #drawerOverlay,#detailOverlay,#confirmOverlay,#sidebarBackdrop,#applicationQrOverlay,#otModal,#globalLoader{-webkit-backdrop-filter:none;backdrop-filter:none}
+ #topbar{padding:max(8px,env(safe-area-inset-top)) 12px 8px;gap:8px}
+ html.has-bn #menuToggle{display:none}
+ .topbar-title h2{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .topbar-title p{display:none}
+ .topbar-actions{gap:6px}
+ .icon-btn{width:40px;height:40px}
+ .avatar{width:36px;height:36px}
+ .user-chip{padding:2px;border:0;background:none}
+ #sidebar{top:0;bottom:0;height:auto;width:min(86vw,320px);background:rgba(255,255,255,.98);padding-top:max(18px,env(safe-area-inset-top));padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+ .nav-item{min-height:46px;font-size:14.5px;padding:8px 12px}
+ .nav-group-label{padding-top:18px}
+ #content{padding:16px 14px 96px}
+ #bottomNav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:28;height:calc(var(--bn-h) + env(safe-area-inset-bottom,0px));padding:6px 6px env(safe-area-inset-bottom,0px);background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -8px 24px -14px rgba(25,29,48,.25)}
+ .bn-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:none;color:var(--ink-500);font:600 11px/1.2 var(--font-b);padding:0}
+ .bn-item[hidden]{display:none}
+ .bn-ic{width:56px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;transition:background .2s}
+ .bn-ic svg{width:22px;height:22px}
+ .bn-item.active{color:var(--brand-1)}
+ .bn-item.active .bn-ic{background:rgba(78,107,246,.14)}
+ .bn-item span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ #content #addBtn{position:fixed;right:16px;bottom:calc(var(--bn-h) + 16px + env(safe-area-inset-bottom,0px));z-index:29;height:52px;padding:0 22px;font-size:14.5px;box-shadow:0 14px 30px -8px rgba(78,107,246,.6)}
+ #drawer{width:100%;max-width:100%}
+ #drawer .drawer-head{padding:max(14px,env(safe-area-inset-top)) 16px 14px}
+ #drawer .drawer-body{padding:18px 16px}
+ .drawer-foot{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+ .drawer-foot .btn,.confirm-actions .btn,.ot-foot .btn{min-height:48px}
+ #detailDrawer{width:100%}
+ .d-hero{padding:max(14px,env(safe-area-inset-top)) 16px 14px}
+ .d-hero .avatar{width:52px;height:52px;font-size:18px}
+ .d-body{padding:12px}
+ .d-sec{padding:14px}
+ .d-grid{grid-template-columns:1fr 1fr;gap:12px 14px}
+ #toastContainer{left:12px;right:12px;bottom:calc(var(--bn-h) + 12px + env(safe-area-inset-bottom,0px));align-items:stretch}
+ .toast{min-width:0;max-width:none}
+ #embedPane{padding:10px 10px 12px}
+ .embed-actions{width:100%}
+ .embed-actions .btn{flex:1}
+ .embed-frame{border-radius:18px}
+}
+@media (max-width:380px){.d-grid{grid-template-columns:1fr}}
+
+@media (max-width:700px){
+ body{font-size:15px}
+ .btn{min-height:44px}
+ input:not([type=file]):not([type=checkbox]):not([type=radio]),select{min-height:48px}
+ .input,.select,.textarea,#drawer .field input,#drawer .field select,#drawer .field textarea,#otModal .field input,#otModal .field select{font-size:16px}
+ .module-head{margin-bottom:12px}
+ .module-head .mh-left{gap:10px}
+ .module-head .icon-badge.lg{width:42px;height:42px}
+ .module-head .icon-badge.lg svg{width:26px;height:26px}
+ .module-head h2{font-size:18px}
+ .module-head .mdesc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .toolbar{gap:8px}
+ .search-box{flex:1 1 100%;max-width:none;min-width:0}
+ .toolbar-spacer{display:none}
+ .toolbar .btn{flex:1}
+ .filter-panel{padding:16px}
+ .filter-grid{grid-template-columns:1fr}
+ .filter-foot .btn{flex:1}
+
+ /* tabel → kartu */
+ .table-scroll{max-height:none;overflow:visible}
+ #content table.data-table{display:block;min-width:0}
+ #content .data-table thead{display:none}
+ #content .data-table tbody{display:flex;flex-direction:column;gap:10px;padding:10px}
+ #content .data-table tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;position:relative;padding:14px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-sm)}
+ #content .data-table tbody tr:active{background:#F5F7FF}
+ #content .data-table tbody td{display:block;position:static;min-width:0;max-width:none;padding:0;border:0;background:none;white-space:normal;overflow:visible;overflow-wrap:anywhere;font-size:14px;line-height:1.35}
+ #content .data-table tbody td::before{content:attr(data-label);display:block;margin-bottom:2px;color:var(--ink-400);font-size:11.5px;font-weight:600}
+ #content .data-table td.m-skip{display:none}
+ #content .data-table td.m-title{grid-column:1/-1;order:-1;font:700 16px/1.3 var(--font-d);color:var(--ink-900)}
+ #content .data-table td.m-title::before,#content .data-table td.m-photo::before{display:none}
+ #content .data-table td.m-photo{position:absolute;top:14px;right:14px;width:46px;overflow:hidden}
+ #content .data-table tr.has-photo td.m-title{padding-right:58px}
+ #content .data-table td.m-act{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-top:2px;padding-top:10px;border-top:1px solid var(--line)}
+ #content .data-table td.m-act::before{content:'Ketuk kartu untuk detail';flex:1;margin:0;font-weight:500}
+ #content .row-actions{opacity:1;gap:8px}
+ #content .row-actions button{width:42px;height:42px;border-radius:12px}
+ #content .row-actions button svg,.pager button svg{width:18px;height:18px}
+ .m-sort{display:flex;align-items:center;gap:8px;margin:0 0 12px}
+ .m-sort label{font-size:12.5px;font-weight:600;color:var(--ink-500)}
+ .m-sort select{flex:1;min-width:0}
+ .m-sort .btn{width:48px;padding:0}
+ .table-footer{flex-direction:column;align-items:center;padding:12px}
+ .pager{gap:10px}
+ .pager button{width:42px;height:42px;border-radius:12px}
+
+ /* dashboard */
+ .greet-band{padding:20px 18px;border-radius:22px;margin-bottom:16px}
+ .greet-band h2{font-size:20px}
+ .shortcuts{flex-wrap:nowrap;overflow-x:auto;margin:16px -18px 0;padding:0 18px 2px;scrollbar-width:none}
+ .shortcuts::-webkit-scrollbar{display:none}
+ .shortcut-pill{flex:none;min-height:44px}
+ .stat-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+ .stat-card{padding:14px;gap:10px}
+ .stat-card .icon-badge{width:36px;height:36px}
+ .stat-val{font-size:24px}
+ .chart-grid{gap:12px;margin-bottom:12px}
+ .chart-card{padding:16px}
+ .chart-wrap{height:210px}
+
+ /* login */
+ #loginScreen{align-items:flex-start;overflow-y:auto;padding:max(16px,env(safe-area-inset-top)) 16px 24px}
+ .login-card{margin:auto;padding:28px 20px 22px}
+ .login-icon{width:80px;height:80px;margin-bottom:14px}
+ .login-card .sub{margin-bottom:20px}
+}
+</style>
+<script>
+/* ===== LAPISAN PONSEL & IFRAME ===== */
+(function(){
+ var H=document.documentElement,fr=false;
+ try{fr=self!==top}catch(e){fr=true}
+ if(fr)H.classList.add('in-frame');
+ function $(s){return document.querySelector(s)}
+ function deb(fn){var r=0;return function(){cancelAnimationFrame(r);r=requestAnimationFrame(fn)}}
+
+ /* navigasi bawah: memakai item sidebar yang sudah ada, jadi logika aplikasi tidak berubah */
+ var items=[['dashboard','grid','Dashboard'],['MST_Employee','users','Karyawan'],['TRX_Attendance','calCheck','Absensi'],['TRX_LeaveRequest','calX','Izin &amp; Cuti'],['menu','menu','Menu']];
+ var bn=document.createElement('nav');bn.id='bottomNav';bn.setAttribute('aria-label','Navigasi utama');
+ bn.innerHTML=items.map(function(i){return '<button type="button" class="bn-item" data-t="'+i[0]+'"><span class="bn-ic">'+svgIcon(i[1])+'</span><span>'+i[2]+'</span></button>'}).join('');
+ $('#appShell').appendChild(bn);H.classList.add('has-bn');
+ bn.addEventListener('click',function(e){
+  var b=e.target.closest('.bn-item');if(!b)return;
+  if(b.dataset.t==='menu'){$('#sidebar').classList.add('open');$('#sidebarBackdrop').classList.add('show');return}
+  var n=$('.nav-item[data-sheet="'+b.dataset.t+'"]');if(n)n.click();
+ });
+ function syncNav(){
+  var a=$('.nav-item.active'),k=a?a.dataset.sheet:'',hit=false;
+  [].forEach.call(bn.children,function(b){
+   var t=b.dataset.t;
+   if(t!=='menu')b.hidden=!$('.nav-item[data-sheet="'+t+'"]');
+   var on=t===k;if(on)hit=true;b.classList.toggle('active',on);
+  });
+  bn.lastElementChild.classList.toggle('active',!hit&&!!k);
+ }
+ new MutationObserver(deb(syncNav)).observe($('#navContainer'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+
+ /* tabel → kartu: label tiap sel, judul kartu, dan 5 field terpenting yang terisi */
+ var IMP=/jabatan|departemen|posisi|status|hp|telp|email|tanggal|waktu|jumlah|total|nominal|gaji|tipe|jenis|judul/i;
+ function clean(th){return th.textContent.replace(/[▲▼]/g,'').trim()}
+ function decorate(){
+  var tb=$('#tableCard table.data-table');if(!tb||!tb.tHead)return;
+  var ths=[].slice.call(tb.tHead.rows[0].cells),f=ths.map(function(h){return h.dataset.field||''}),ti=0;
+  try{ti=Math.max(0,f.indexOf(tablesBySheet[currentSheet].labelField))}catch(e){}
+  [].forEach.call(tb.tBodies[0].rows,function(tr){
+   if(tr.dataset.mc)return;tr.dataset.mc=1;
+   var c=[].slice.call(tr.cells),last=c.length-1,pool=[];
+   c.forEach(function(td,i){
+    if(i===last){td.classList.add('m-act');return}
+    td.dataset.label=clean(ths[i]);
+    if(i===ti){td.classList.add('m-title');return}
+    if(td.querySelector('img.pic')){td.classList.add('m-photo');tr.classList.add('has-photo');return}
+    var tx=td.textContent.trim();
+    if(!td.querySelector('img,svg')&&(!tx||tx==='-'))td.classList.add('m-skip');else pool.push(i);
+   });
+   pool.map(function(i){return [IMP.test(f[i])?0:1,i]}).sort(function(a,b){return a[0]-b[0]||a[1]-b[1]}).slice(5).forEach(function(p){c[p[1]].classList.add('m-skip')});
+  });
+  /* pengurutan (header tabel disembunyikan di ponsel) */
+  var bar=$('.m-sort'),card=$('#tableCard'),sel;
+  if(!bar){
+   bar=document.createElement('div');bar.className='m-sort';
+   bar.innerHTML='<label for="mSort">Urutkan</label><select class="select" id="mSort"></select><button type="button" class="btn btn-ghost" aria-label="Balik arah urutan">↕</button>';
+   sel=bar.querySelector('select');sel.add(new Option('Urutan bawaan',''));
+   ths.forEach(function(h,i){if(f[i])sel.add(new Option(clean(h),f[i]))});
+   card.parentNode.insertBefore(bar,card);
+   sel.onchange=function(){
+    if(!this.value){sortState[currentSheet]=null;renderTableBody(currentSheet);return}
+    var th=[].filter.call(document.querySelectorAll('#tableCard thead th[data-field]'),function(x){return x.dataset.field===sel.value})[0];
+    if(th)th.click();
+   };
+   bar.querySelector('button').onclick=function(){var th=$('#tableCard th.sorted');if(th)th.click()};
+  }
+  sel=bar.querySelector('select');var s=$('#tableCard th.sorted');sel.value=s?s.dataset.field:'';
+ }
+ new MutationObserver(deb(decorate)).observe($('#content'),{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html>
